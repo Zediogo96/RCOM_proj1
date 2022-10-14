@@ -6,9 +6,6 @@
 #include "alarm.h"
 #include "transmitter.h"
 
-int fd;
-int nRetransmissions;
-
 int sendSET()
 {
 
@@ -54,7 +51,7 @@ int transmitter_start(int fd_, int nRetransmissions_, int timeout)
 
     while (nRetransmissions > 0)
     {
-        alarm_start(timeout, sender_alarm_handler);
+        alarm_start(timeout, transmitter_alarm_handler);
 
         if (transmitter_ctrl_receive(fd) == 1) return 1;
     }
