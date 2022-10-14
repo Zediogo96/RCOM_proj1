@@ -7,6 +7,7 @@
 
 #include "link_layer.h"
 
+
 // MISC
 #define BAUDRATE B38400
 #define _POSIX_SOURCE 1 // POSIX compliant source
