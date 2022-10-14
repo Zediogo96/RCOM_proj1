@@ -1,3 +1,6 @@
+#ifndef _MACROS_H_
+#define _MACROS_H_
+
 #define BAUDRATE B38400
 
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
@@ -21,12 +24,12 @@
 
 /* ************** FIELDS ************** */
 
-#define A 0x03 // ADDRESS
-#define C_SET 0x03 // SET UP
-#define C_UA 0x07 // UNUMBERED ACKNOWLEDGEMENT
-#define C_DISC 0x0B // DISCONNECT
-#define C_RR (n) (0x06 | (n >> 7)) // RECEIVER READY / POSITIVE ACKNOWLEDGMENT
-#define C_REJ (n) (0x01 | (n >> 7)) // RECEIVER REJECTED / NEGATIVE ACKNOWLEDGEMENT
+#define A 0x03                     // ADDRESS
+#define C_SET 0x03                 // SET UP
+#define C_UA 0x07                  // UNUMBERED ACKNOWLEDGEMENT
+#define C_DISC 0x0B                // DISCONNECT
+#define C_RR (n)(0x06 | (n >> 7))  // RECEIVER READY / POSITIVE ACKNOWLEDGMENT
+#define C_REJ (n)(0x01 | (n >> 7)) // RECEIVER REJECTED / NEGATIVE ACKNOWLEDGEMENT
 
 /* ************** INFORMATION FRAME ************** */
 
@@ -35,9 +38,10 @@
 
 /* ************** PACKETS ************** */
 
-#define C_DATA 0x01 // DATA
+#define C_DATA 0x01  // DATA
 #define C_START 0x02 // CONTROL
-#define C_END 0x03 // CONTROL 
-#define T_SIZE 0x00 // CONTROL
-#define T_NAME 0x01 // CONTROL
+#define C_END 0x03   // CONTROL
+#define T_SIZE 0x00  // CONTROL
+#define T_NAME 0x01  // CONTROL
 
+#endif // _MACROS_H_

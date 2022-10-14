@@ -6,6 +6,10 @@
 #include <unistd.h>
 
 #include "link_layer.h"
+#include "macros.h"
+
+#include "receiver.h"
+#include "transmitter.h"
 
 // MISC
 #define BAUDRATE B38400
@@ -24,6 +28,7 @@ struct termios newtio;
 ////////////////////////////////////////////////
 // LLOPEN
 ////////////////////////////////////////////////
+
 int llopen(LinkLayer connectionParameters)
 {
     print("Opening connection %s", connectionParameters.serialPort);
@@ -57,7 +62,7 @@ int llopen(LinkLayer connectionParameters)
     tcflush(fd, TCIOFLUSH);
 
     // Set new port configuration
-    if (tcsetattr(fd, TCSANOW, &newtio) == -1) 
+    if (tcsetattr(fd, TCSANOW, &newtio) == -1)
     {
         perror("tcsetattr");
         return -1;
@@ -65,11 +70,12 @@ int llopen(LinkLayer connectionParameters)
 
     printf("New termios structure set\n");
 
-    if (connectionParameters.role == L1Rx)
-        // receiver start
-    else {
-        // transmitter start
-    }
+    if (connectionParameters.role == LlRx)
+        if (!receiverStart(fd))
+            return -1;
+        else if (connectionParameters.role == LlTx) // NOT SURE IF I NEED THIS GUARD OR JUST ELSE
+            if (!transmitter_start(fd, connectionParameters.nRetransmissions, connectionParameters.timeout))
+                return -1;
 
     return 1;
 }

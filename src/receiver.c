@@ -4,8 +4,6 @@
 #include "state_machine.h"
 #include "receiver.h"
 
-unsigned char buffer[BUFFER_SIZE] = {0};
-
 int receiverStart(int fd)
 {
     while (TRUE)

@@ -9,7 +9,7 @@ int state = 0;
 unsigned char saved_c[BUFFER_SIZE] = {};
 __uint8_t idx = 0;
 
-int startVerifyState(unsigned char value, int fd, LinkLayerRole role)
+int sm_process_states(unsigned char value, int fd, LinkLayerRole role)
 {
     while (TRUE)
     {
