@@ -5,7 +5,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "link_layer.h"
+#include "../include/link_layer.h"
 
 // MISC
 #define BAUDRATE B38400
