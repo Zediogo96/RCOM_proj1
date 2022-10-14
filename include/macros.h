@@ -5,6 +5,8 @@
 #define FALSE 0
 #define TRUE 1
 
+#define BUFFER_SIZE 256
+
 #define FLAG 0x7E
 #define ADDRESS_T_to_R 0x03
 #define ADDRESS_R_to_T 0x01
