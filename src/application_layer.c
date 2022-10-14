@@ -11,7 +11,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 {
     LinkLayer connection;
 
-    snprintf(connection.serialPort, sizeof(connection.serialPort), %s, serialPort);  //copy serial port number to link layer struct
+    snprintf(connection.serialPort, sizeof(connection.serialPort), "%s\n", serialPort);  //copy serial port number to link layer struct
 
     //see what is the role of the device running the application
 
@@ -19,7 +19,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         connection.role = LlTx;  //transmitter
     }
     else if (strcmp(role, "rx")==0) {
-        connection.role = LlRx  //receiver
+        connection.role = LlRx;  //receiver
     }
     else {
         return;
@@ -30,7 +30,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     connection.nRetransmissions = nTries;
     connection.timeout = timeout;
 
-    if (llopen_read == (-1)) {
+    if (llopen(connection) == (-1)) {
         //error
         //close connection
         llclose(stats);
@@ -39,14 +39,14 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
     //if transmitter, send data
 
-    if (connection.role = LlTx) {
+    if (connection.role == LlTx) {
         //send stuff
         //represent file
         //get control packet
         //write packets to buffer
         //use llwrite to transmit the buffer
     }
-    else if (connection.role = LlRx) {
+    else if (connection.role == LlRx) {
         //receive stuff
         //use llread to read from the buffer
     }

@@ -1,9 +1,9 @@
 // Link layer protocol implementation
 #include <stdio.h>
-#include <fcntl.h>
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "link_layer.h"
 #include "macros.h"
@@ -14,11 +14,6 @@
 // MISC
 #define BAUDRATE B38400
 #define _POSIX_SOURCE 1 // POSIX compliant source
-
-#define FALSE 0
-#define FALSE 1
-
-#define BUF_SIZE 256
 
 int fd;
 
@@ -31,7 +26,7 @@ struct termios newtio;
 
 int llopen(LinkLayer connectionParameters)
 {
-    print("Opening connection %s", connectionParameters.serialPort);
+    printf("Opening connection %s", connectionParameters.serialPort);
 
     fd = open(connectionParameters.serialPort, 0_RDWR | 0_NOCTTY, 0_NONBLOCK);
 
@@ -73,9 +68,9 @@ int llopen(LinkLayer connectionParameters)
     if (connectionParameters.role == LlRx)
         if (!receiverStart(fd))
             return -1;
-        else if (connectionParameters.role == LlTx) // NOT SURE IF I NEED THIS GUARD OR JUST ELSE
-            if (!transmitter_start(fd, connectionParameters.nRetransmissions, connectionParameters.timeout))
-                return -1;
+    else if (connectionParameters.role == LlTx) // NOT SURE IF I NEED THIS GUARD OR JUST ELSE
+        if (!transmitter_start(fd, connectionParameters.nRetransmissions, connectionParameters.timeout))
+            return -1;
 
     return 1;
 }
@@ -105,7 +100,7 @@ int llread(unsigned char *packet)
 ////////////////////////////////////////////////
 int llclose(int showStatistics)
 {
-    if (tcsetattr(fd, TCSANOW, &oldtio == -1))
+    if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
     {
         perror("tcsetattr");
         return -1;

@@ -11,8 +11,8 @@ int receiverStart(int fd)
         int _bytes = read(fd, buffer, 1);
         if (buffer != 0 && _bytes > -1)
         {
-            int ans = startVerifyState(buffer[0], fd, LlRx);
-            if (ans == 1)
+            int answer = sm_process_states(buffer[0], fd, LlRx);
+            if (answer == 1)
                 return 1; // POSSÍVEL REFACTOR AQUI
         }
     }

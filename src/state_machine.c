@@ -53,7 +53,7 @@ int sm_process_states(unsigned char value, int fd, LinkLayerRole role)
         case 4:
             state = 0;
             idx = 0;
-            if (role == L1Rx)
+            if (role == LlRx)
             {
                 if (saved_c[2] == 0x03)
                 {
@@ -65,7 +65,7 @@ int sm_process_states(unsigned char value, int fd, LinkLayerRole role)
                     return 1;
                 }
             }
-            else if (role == L1Tx)
+            else if (role == LlTx)
             {
                 if (saved_c[2] == 0x07)
                 {

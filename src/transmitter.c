@@ -23,8 +23,8 @@ int transmitter_ctrl_receive()
     int bytes = read(fd, buffer, 1);
     if ((buffer != 0) && (bytes > -1))
     {
-        int rspns = startVerifyState(buffer[0], fd, LlTx);
-        if (rspns == 1)
+        int answer = sm_process_states(buffer[0], fd, LlTx);
+        if (answer == 1)
         {
             killAlarm();
             return 1;
