@@ -28,7 +28,7 @@ int llopen(LinkLayer connectionParameters)
 {
     printf("Opening connection %s", connectionParameters.serialPort);
 
-    fd = open(connectionParameters.serialPort, 0_RDWR | 0_NOCTTY, 0_NONBLOCK);
+    fd = open(connectionParameters.serialPort, O_RDWR | O_NOCTTY | O_NONBLOCK);
 
     if (fd < 0)
     {
@@ -66,24 +66,34 @@ int llopen(LinkLayer connectionParameters)
     printf("New termios structure set\n");
 
     if (connectionParameters.role == LlRx)
+    {
         if (!receiverStart(fd))
             return -1;
-    else if (connectionParameters.role == LlTx) // NOT SURE IF I NEED THIS GUARD OR JUST ELSE
+    }
+    else if (connectionParameters.role == LlTx)
+    {
+
         if (!transmitter_start(fd, connectionParameters.nRetransmissions, connectionParameters.timeout))
             return -1;
-
+    }
     return 1;
 }
 
 ////////////////////////////////////////////////
 // LLWRITE
 ////////////////////////////////////////////////
+
+int ca = 0;
+
 int llwrite(const unsigned char *buf, int bufSize)
 {
-    // TODO
+
+
 
     return 0;
 }
+
+
 
 ////////////////////////////////////////////////
 // LLREAD

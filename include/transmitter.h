@@ -1,8 +1,7 @@
 #ifndef _TRANSMITTER_H_
 #define _TRANSMITTER_H_
+#include "alarm.h"
 
-int fd;
-int nRetransmissions;
 
 int sendSET();
 

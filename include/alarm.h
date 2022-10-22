@@ -1,12 +1,18 @@
 #ifndef _ALARM_H_
 #define _ALARM_H_
 
+#include <unistd.h>
+#include <signal.h>
+#include <stdio.h>
+
 #include "macros.h"
 
-extern int alarmEnabled, alarmCount;
+extern int alarm_enabled , alarm_count;
 
-void killAlarm();
+void kill_alarm();
 
-void alarmHandler();
+int start_alarm(unsigned int duration);
+
+void alarm_handler();
 
 #endif // _ALARM_H_

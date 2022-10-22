@@ -42,6 +42,12 @@
 #define C_START 0x02 // CONTROL
 #define C_END 0x03   // CONTROL
 #define T_SIZE 0x00  // CONTROL
-#define T_NAME 0x01  // CONTROL
+#define T_NAME 0x01  // 
+
+/* ************** FOR STUFFING USE ************** */
+
+#define ESCAPE_OCTET 0x7D
+#define FLAG_OCTET_SUB 0x5E // this is the result of 0x7E (octet to be subbed) XOR (^) with 0x20
+#define ESCAPE_OCTET_SUB 0x5D // this is the result of 0x7D (octet to be subbed) XOR (^) with 0x20
 
 #endif // _MACROS_H_

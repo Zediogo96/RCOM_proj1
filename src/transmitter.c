@@ -1,32 +1,35 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "macros.h"
+
 #include "link_layer.h"
 #include "state_machine.h"
-#include "alarm.h"
 #include "transmitter.h"
+
+
+int t_fd;
+int t_nRetransmissions;
 
 int sendSET()
 {
-
     unsigned char buffer_SET[5] = {FLAG, A, C_SET, A ^ C_SET, FLAG};
 
-    int bytes = write(fd, buffer_SET, 5);
+    int bytes = write(t_fd, buffer_SET, 5);
     printf("SET flag sent, %d bytes written\n", bytes);
     return bytes;
 }
 
 int transmitter_ctrl_receive()
 {
-    unsigned char buffer[BUFFER_SIZE] = {0};
+    unsigned char t_buffer[BUFFER_SIZE] = {0};
 
-    int bytes = read(fd, buffer, 1);
-    if ((buffer != 0) && (bytes > -1))
+    int bytes = read(t_fd, t_buffer, 1);
+    if ((t_buffer != 0) && (bytes > -1))
     {
-        int answer = sm_process_states(buffer[0], fd, LlTx);
+        int answer = sm_process_states(t_buffer[0], t_fd, LlTx);
         if (answer == 1)
         {
-            killAlarm();
+            kill_alarm();
             return 1;
         }
     }
@@ -34,26 +37,20 @@ int transmitter_ctrl_receive()
     return 0;
 }
 
-void transmitter_alarm_handler(int signal)
+int transmitter_start(int t_fd_, int t_nRetransmissions_, int timeout)
 {
-    alarmEnabled = FALSE;
-    alarmCount++;
-    sendSET();
-    nRetransmissions--;
-    printf("Alarm no. %d\n", alarmCount);
-}
-
-int transmitter_start(int fd_, int nRetransmissions_, int timeout)
-{
-    fd = fd_;
-    nRetransmissions = nRetransmissions_;
+    t_fd = t_fd_;
+    t_nRetransmissions = t_nRetransmissions_;
     sendSET();
 
-    while (nRetransmissions > 0)
+    while (t_nRetransmissions > 0)
     {
-        alarm_start(timeout, transmitter_alarm_handler);
-
-        if (transmitter_ctrl_receive(fd) == 1) return 1;
+        if (!alarm_enabled)
+        {
+            sendSET();
+            t_nRetransmissions--;
+            start_alarm(timeout);
+        }
     }
 
     return 0;

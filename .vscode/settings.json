@@ -4,7 +4,8 @@
         "termios.h": "c",
         "link_layer.h": "c",
         "transmitter.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "macros.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
