@@ -117,3 +117,12 @@ int buildInformationFrame(unsigned char *frame, unsigned char packet[], int pack
 
     return frameSize;
 }
+
+int sendFrame(unsigned char frame_to_send[], int frameToSendSize)
+{
+    int bytes = write(t_fd, frame_to_send, frameToSendSize);
+    printf("\n")
+    for (int i = 0; i < frameToSendSize; i++) printf("%02x ", frame_to_send[i]);
+    printf("\nInformation frame sent, %d bytes written\n", bytes);
+    return bytes;
+}
