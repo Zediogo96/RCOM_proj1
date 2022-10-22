@@ -44,6 +44,8 @@
 #define T_SIZE 0x00  // CONTROL
 #define T_NAME 0x01  // 
 
+#define PACKET_MAX_SIZE 128
+
 /* ************** FOR STUFFING USE ************** */
 
 #define ESCAPE_OCTET 0x7D
