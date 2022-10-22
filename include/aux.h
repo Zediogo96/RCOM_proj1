@@ -20,7 +20,7 @@ int stuffing(unsigned char *data, int data_size)
         if (data[i] == FLAG)
         {
             new_data[new_data_pos++] = ESCAPE_OCTET;
-            new_data[new_data_pos++] = FLAG_OCTET_SUB
+            new_data[new_data_pos++] = FLAG_OCTET_SUB;
         }
         else if (data[i] == ESCAPE_OCTET) 
         {  
@@ -39,4 +39,4 @@ int stuffing(unsigned char *data, int data_size)
     return sizeof(new_data);
 }
 
-#endif _AUX_H
+#endif // _AUX_H_

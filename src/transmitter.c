@@ -43,7 +43,7 @@ int transmitter_ctrl_receive()
 int transmitter_start(int new_fd, int new_nRetransmissions, int timeout)
 {
     t_fd = new_fd;
-    t_nRetransmissions = new_nRetransmissions_;
+    t_nRetransmissions = new_nRetransmissions;
 
     // Number maximum number of retransmissions was not reached
     while (t_nRetransmissions > 0)
@@ -121,7 +121,7 @@ int buildInformationFrame(unsigned char *frame, unsigned char packet[], int pack
 int sendFrame(unsigned char frame_to_send[], int frameToSendSize)
 {
     int bytes = write(t_fd, frame_to_send, frameToSendSize);
-    printf("\n")
+    printf("\n");
     for (int i = 0; i < frameToSendSize; i++) printf("%02x ", frame_to_send[i]);
     printf("\nInformation frame sent, %d bytes written\n", bytes);
     return bytes;
@@ -153,5 +153,3 @@ int sender_information_send(unsigned char frameToSend[], int frameToSendSize, in
 
     return 0;
 }
-
-    return 0;

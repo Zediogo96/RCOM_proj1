@@ -81,3 +81,80 @@ int sm_process_states(unsigned char value, int fd, LinkLayerRole role)
         return 0;
     }
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+// HANDLING STATE MACHINE FOR DATA
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+enum mst {
+    START,
+    F_RECEIVED,
+    A_RECEIVED,
+    C_RECEIVED,
+    BCC1_RECEIVED,
+    RECEIVING_PACKET,
+    WAITING_END_FLAG
+} typedef MACHINE_STATE;
+
+unsigned char dataSavedChars[PACKET_MAX_SIZE] = {0};
+
+int data_state_machine (unsigned char byte, int fd, LinkLayerRole role)
+{
+    while (1)
+    {  
+        switch (data_state)
+        {
+        case START:
+            if (byte == FLAG) {
+                data_state = F_RECEIVED;
+                dataSavedChars[data_ptr++] = byte;
+                return 0;
+            }
+            break;
+        case F_RECEIVED:
+            if (byte == A) {
+                data_state = A_REC;
+                dataSavedChars[data_ptr++] = byte;
+                return 0;
+            }
+            break;
+        // ANALISAR MELHOR ESTE
+        case A_RECEIVED: 
+            if (byte == C) {
+                data_state = C_RECEIVED;
+                dataSavedChars[data_ptr++] = byte;
+                return 0;
+            }
+            break;
+        
+        // ESTE TAMBÉM É DUVIDOSO
+        case C_RECEIVED:
+            if (byte == (dataSavedChars[1] ^ dataSavedChars[2])) {
+                data_state = RECEIVING_PACKET;
+                dataSavedChars[data_ptr++] = byte;
+                return 0;
+            }
+            else 
+            {
+                data_state = BCC1_RECEIVED;
+                data_ptr = 0;
+                return -1;
+            }
+            break;
+        case RECEIVING_PACKET: 
+        if (byte == ESCAPE_OCTET) return 3;
+        else if (byte == FLAG) 
+        {
+            data_state = START;
+            data_ptr = 0;
+            return 1;
+        }
+        else return 2;
+
+        break;
+        
+        default:
+            break;
+        }
+    }
+}

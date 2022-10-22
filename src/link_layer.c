@@ -20,12 +20,15 @@ int fd;
 struct termios oldtio;
 struct termios newtio;
 
+
+
 ////////////////////////////////////////////////
 // LLOPEN
 ////////////////////////////////////////////////
 
 int llopen(LinkLayer connectionParameters)
-{
+{   
+
     printf("Opening connection %s", connectionParameters.serialPort);
 
     fd = open(connectionParameters.serialPort, O_RDWR | O_NOCTTY | O_NONBLOCK);
@@ -87,8 +90,9 @@ int ca = 0;
 
 int llwrite(const unsigned char *buf, int bufSize)
 {
+    unsigned char frame[2 * PACKET_MAX_SIZE + 6] = {0};
 
-
+    int frameSize =
 
     return 0;
 }
