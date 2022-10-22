@@ -126,3 +126,32 @@ int sendFrame(unsigned char frame_to_send[], int frameToSendSize)
     printf("\nInformation frame sent, %d bytes written\n", bytes);
     return bytes;
 }
+
+// TODO 
+/* int transmitter_info_receiver()
+{
+    SHOULD USE STATE MACHINE AS WELL?
+} */
+
+int sender_information_send(unsigned char frameToSend[], int frameToSendSize, int new_NRetransmissions, int timeout)
+{
+    t_nRetransmissions = new_NRetransmissions;
+
+    while (t_nRetransmissions > 0)
+    {
+        if (!alarm_enabled)
+        {
+            sendFrame(frameToSend, frameToSendSize);
+            t_nRetransmissions--;
+            start_alarm(timeout);
+        }
+
+        // TODO, STILL DON'T UNDERSTAND IT ENTIRELY
+        /* if (transmitter_info_receive())
+            return 1; */
+    }
+
+    return 0;
+}
+
+    return 0;
