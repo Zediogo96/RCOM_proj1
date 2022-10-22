@@ -92,7 +92,7 @@ int llwrite(const unsigned char *buf, int bufSize)
 {
     unsigned char frame[2 * PACKET_MAX_SIZE + 6] = {0};
 
-    int frameSize =
+    int frameSize = 0; // TO BE CHANGED
 
     return 0;
 }

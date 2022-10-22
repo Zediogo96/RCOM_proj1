@@ -98,6 +98,10 @@ enum mst {
 
 unsigned char dataSavedChars[PACKET_MAX_SIZE] = {0};
 
+MACHINE_STATE data_state = START;
+
+int data_ptr = 0;
+
 int data_state_machine (unsigned char byte, int fd, LinkLayerRole role)
 {
     while (1)
@@ -113,14 +117,14 @@ int data_state_machine (unsigned char byte, int fd, LinkLayerRole role)
             break;
         case F_RECEIVED:
             if (byte == A) {
-                data_state = A_REC;
+                data_state = A_RECEIVED;
                 dataSavedChars[data_ptr++] = byte;
                 return 0;
             }
             break;
         // ANALISAR MELHOR ESTE
         case A_RECEIVED: 
-            if (byte == C) {
+            if (byte != FLAG) {
                 data_state = C_RECEIVED;
                 dataSavedChars[data_ptr++] = byte;
                 return 0;
@@ -152,7 +156,7 @@ int data_state_machine (unsigned char byte, int fd, LinkLayerRole role)
         else return 2;
 
         break;
-        
+
         default:
             break;
         }
