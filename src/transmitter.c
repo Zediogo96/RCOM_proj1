@@ -10,6 +10,8 @@
 int t_fd;
 int t_nRetransmissions;
 
+
+// GOOD
 int sendSET()
 {
     unsigned char buffer_SET[5] = {FLAG, A, C_SET, A ^ C_SET, FLAG};
@@ -19,6 +21,7 @@ int sendSET()
     return bytes;
 }
 
+// GOOD
 int transmitter_ctrl_receive()
 {
     unsigned char t_buffer[BUFFER_SIZE] = {0};
@@ -37,12 +40,13 @@ int transmitter_ctrl_receive()
     return 0;
 }
 
-int transmitter_start(int t_fd_, int t_nRetransmissions_, int timeout)
-{
-    t_fd = t_fd_;
-    t_nRetransmissions = t_nRetransmissions_;
-    sendSET();
 
+int transmitter_start(int new_fd, int new_nRetransmissions, int timeout)
+{
+    t_fd = new_fd;
+    t_nRetransmissions = new_nRetransmissions_;
+
+    // Number maximum number of retransmissions was not reached
     while (t_nRetransmissions > 0)
     {
         if (!alarm_enabled)
@@ -51,6 +55,10 @@ int transmitter_start(int t_fd_, int t_nRetransmissions_, int timeout)
             t_nRetransmissions--;
             start_alarm(timeout);
         }
+
+        // Verificar se estar parte está certa
+        if (transmitter_ctrl_receive())
+            return 1;
     }
 
     return 0;
