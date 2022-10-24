@@ -15,7 +15,7 @@
 #define BAUDRATE B38400
 #define _POSIX_SOURCE 1 // POSIX compliant source
 
-int fd;
+int fd = 0;
 
 struct termios oldtio;
 struct termios newtio;

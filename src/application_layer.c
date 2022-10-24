@@ -11,7 +11,11 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 {
     LinkLayer connection;
 
-    snprintf(connection.serialPort, sizeof(connection.serialPort), "%s\n", serialPort);  //copy serial port number to link layer struct
+    // snprintf(connection.serialPort, sizeof(connection.serialPort), "%s\n", serialPort);  //copy serial port number to link layer struct
+
+    // swap snprintf connection.serialPort to serialPort
+    strncpy(connection.serialPort, serialPort, sizeof(serialPort) + 3);
+
 
     //see what is the role of the device running the application
 
@@ -22,18 +26,19 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         connection.role = LlRx;  //receiver
     }
     else {
-        return;
+        return; // role is invalid
     }
 
     //set link layer properties
-    connection.baudRate = baudRate;
-    connection.nRetransmissions = nTries;
-    connection.timeout = timeout;
+    connection.baudRate = baudRate; // copy baud rate to link layer struct
+    connection.nRetransmissions = nTries; // copy number of tries to link layer struct
+    connection.timeout = timeout; // copy timeout to link layer struct
 
     if (llopen(connection) == (-1)) {
         //error
         //close connection
-        llclose(stats);
+        // printf("Error: Open failed!\n");
+        //llclose(stats);
         return;
     }
 
@@ -54,7 +59,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     //close connection
 
     if (llclose(stats) == (-1)) {
-        //error
+        printf("\nError: Close failed!\n");
         return;
     }
 }
