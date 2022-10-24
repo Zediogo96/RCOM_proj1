@@ -72,13 +72,10 @@ int buildInformationFrame(unsigned char *frame, unsigned char packet[], int pack
     // SET ADDRESS
     frame[1] = A;
     // SET ALTERNATING CONTROL ADDRESS
-    frame[2] = CA;
-
     if (CA == 0)
         frame[2] = C_ZERO;
     else
         frame[2] = C_ONE;
-
     // SET BCC1
     frame[3] = frame[1] ^ frame[2];
 

@@ -92,6 +92,13 @@ int llwrite(const unsigned char *buf, int bufSize)
 
     int frameSize = 0; // TO BE CHANGED
 
+    // buildFrame
+
+    // sendFrame
+
+
+    // check for errors
+
     return 0;
 }
 
