@@ -20,6 +20,8 @@ int fd;
 struct termios oldtio;
 struct termios newtio;
 
+LinkLayer ll_info;
+
 ////////////////////////////////////////////////
 // LLOPEN
 ////////////////////////////////////////////////
@@ -77,6 +79,8 @@ int llopen(LinkLayer connectionParameters)
         if (!transmitter_start(fd, connectionParameters.nRetransmissions, connectionParameters.timeout))
             return -1;
     }
+
+    ll_info = connectionParameters;
     return 1;
 }
 
@@ -90,16 +94,17 @@ int llwrite(const unsigned char *buf, int bufSize)
 {
     unsigned char frame[2 * PACKET_MAX_SIZE + 6] = {0};
 
-    int frameSize = 0; // TO BE CHANGED
-
     // buildFrame
+    int frameSize = buildInformationFrame(&frame, buf, bufSize, ca);
 
-    // sendFrame
+    // SendFrame, this is using the global variable, will refactor if I have time
+    if (sender_information_send(frame, frameSize, ll_info.nRetransmissions, ll_info.timeout) == -1)
+        return -1;
 
+    // check for errors 
+    if (frameSize < 0) return -1;
 
-    // check for errors
-
-    return 0;
+    return 1;
 }
 
 
