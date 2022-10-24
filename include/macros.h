@@ -28,8 +28,8 @@
 #define C_SET 0x03                 // SET UP
 #define C_UA 0x07                  // UNUMBERED ACKNOWLEDGEMENT
 #define C_DISC 0x0B                // DISCONNECT
-#define C_RR (n)(0x06 | (n >> 7))  // RECEIVER READY / POSITIVE ACKNOWLEDGMENT
-#define C_REJ (n)(0x01 | (n >> 7)) // RECEIVER REJECTED / NEGATIVE ACKNOWLEDGEMENT
+#define C_RR(n)(0x06 | (n >> 7))  // RECEIVER READY / POSITIVE ACKNOWLEDGMENT
+#define C_REJ(n)(0x01 | (n >> 7)) // RECEIVER REJECTED / NEGATIVE ACKNOWLEDGEMENT
 
 /* ************** INFORMATION FRAME ************** */
 

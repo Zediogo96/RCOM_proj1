@@ -11,7 +11,7 @@ int receiverStart(int fd)
     while (TRUE)
     {
         int _bytes = read(fd, r_buffer, 1);
-        if (r_buffer != 0 && _bytes > -1)
+        if (/* r_buffer != 0 && COMPILER DÁ WARNING */ _bytes > -1)
         {
             int answer = sm_process_states(r_buffer[0], fd, LlRx);
             if (answer == 1)
@@ -21,3 +21,16 @@ int receiverStart(int fd)
 
     return 0;
 }
+
+
+
+
+
+// received disconnect
+
+/////////////////////////////////////////
+/////////////////////////////////////////
+/////////////////////////////////////////
+/////////////////////////////////////////
+/////////////////////////////////////////
+

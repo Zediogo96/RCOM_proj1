@@ -11,7 +11,7 @@ unsigned int get_controlpacket(unsigned char *filename, int fileSize, int start,
     unsigned int bytes_filename = filename_size / 256;
 
     // NÃO SEI SE ESTA VERIFICAÇÃO ESTÁ CERTA
-    if (if filename_size - (bytes_filename * 256) > 0)
+    if (filename_size - (bytes_filename * 256) > 0)
     {
         bytes_filename++;
     }
@@ -22,11 +22,13 @@ unsigned int get_controlpacket(unsigned char *filename, int fileSize, int start,
         return 0;
     }
 
-    unsigned char hex_size[BUF_SIZE] = {0};
+    unsigned char hex_size[BUFFER_SIZE] = {0};
 
-    sprintf(hex_size, "%02lX", fileSize);
+    // NÃO SEI SE ESTA VERIFICAÇÃO ESTÁ CERTA  
 
-    unsigned int bytes_file = strelen(hexaSize);
+    sprintf(hex_size, "%02X", fileSize);
+
+    unsigned int bytes_file = strlen((unsigned char * )hex_size);
 
     // CHECK IF BYTES_FILE IS EVEN
     if (bytes_file % 2 != 0)
@@ -109,12 +111,12 @@ unsigned int handle_packet(unsigned char *packet, unsigned int *size)
         }
         else if (packet[1] == T_SIZE)
         {
-            real_size[1] = packet[2]; // 1st byte of size
+            real_size = packet[2]; // 1st byte of size
             unsigned int new_size = 0;
 
             int i;
 
-            for (i = 0; i < real_size[1]; i++)
+            for (i = 0; i < real_size; i++)
             {
                 new_size += packet[3 + i] << (8 * i);
             }

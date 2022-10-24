@@ -26,7 +26,7 @@ int transmitter_ctrl_receive()
     unsigned char t_buffer[BUFFER_SIZE] = {0};
 
     int bytes = read(t_fd, t_buffer, 1);
-    if ((t_buffer != 0) && (bytes > -1))
+    if (/* (t_buffer != 0) && COMPILER DÁ WARNING */ (bytes > -1))
     {   
         printf("Received %02x \n", t_buffer[0]);
         int answer = sm_process_states(t_buffer[0], t_fd, LlTx);
