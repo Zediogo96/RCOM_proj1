@@ -9,28 +9,41 @@
 unsigned int get_controlpacket(unsigned char *filename, int fileSize, int start, unsigned char packet[])
 {
     unsigned int filename_size = strlen(filename);
-    // FALTA AQUI VERIFICAÇÃO I THINK (VERIF 1)
+    unsigned int bytes_filename = filename_size / 256;
+
+    // NÃO SEI SE ESTA VERIFICAÇÃO ESTÁ CERTA
+    if (if filename_size - (bytes_filename * 256) > 0)
+    {
+        bytes_filename++;
+    }
+    
     if (filename_size > 255)
     {
-        printf("Filename size is greater than 1 byte, aborting...\n");
+        printf("log > Filename size is greater than 1 byte, aborting...\n");
         return 0;
     }
+
+    // SAME VERIFICATIONS FOR FILESIZE?? 
+    ///////////////////////////////////
+    ///////////////////////////////////
+    ///////////////////////////////////
+    ///////////////////////////////////
+    ///////////////////////////////////
+    ///////////////////////////////////
 
     size_t index = 0;
 
     if (start == TRUE)
-        packet[index++] = C_ZERO;
+        packet[index++] = C_START;
     else if (start == FALSE)
-        packet[index++] = C_ONE;
-    
-    // FALTA AQUI STUFF, AINDA NÃO SEI O QUE É SUPOSTO METER
+        packet[index++] = C_END;
 
-    // SEI QUE O FILENAME VAI TER DE IR NA FRAME
-    // RELACIONADO COM ACIMA (VERIF 1)
-    for (int i = 0; i < filename_size; i++)
-        packet[index++] = filename[i];
-
-    // FALTA AQUI STUFF, AINDA NÃO SEI O QUE É SUPOSTO METER
+    // NOT SURE IF THE ORDER T_NAME 1ST & T_SIZE 2ND OR VICE-VERSA MATTERS
+    packet[index++] = T_NAME;
+    packet[index++] = filename_size;
+    // APPENDING T_SIZE TO PACKET
+    packet[index++] = T_SIZE;
+    packet[index++] = bytes_filename;   
 
     for (int i = 0; i < 4; i++)
         packet[index++] = (fileSize >> (8 * i)) & 0xFF;

@@ -8,7 +8,7 @@ void kill_alarm()
     alarm_count = 0;
 }
 
-void alarm_handler()
+void alarm_handler(int signal)
 {
     alarm_count++;
     alarm_enabled = TRUE;
@@ -24,8 +24,8 @@ int start_alarm(unsigned int duration)
         return -1;
     }  
 
-    alarm_enabled = TRUE;
     alarm(duration);
+    alarm_enabled = TRUE;
 
 
     return 0;

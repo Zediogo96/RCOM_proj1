@@ -16,7 +16,6 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     // swap snprintf connection.serialPort to serialPort
     strncpy(connection.serialPort, serialPort, sizeof(serialPort) + 3);
 
-
     //see what is the role of the device running the application
 
     if (strcmp(role, "tx")==0) {

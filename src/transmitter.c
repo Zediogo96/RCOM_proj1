@@ -32,7 +32,7 @@ int transmitter_ctrl_receive()
         int answer = sm_process_states(t_buffer[0], t_fd, LlTx);
         if (answer == 1)
         {
-            printf("Transmitter: received UA\n");
+            printf("log -> Transmitter: received UA\n");
             kill_alarm();
             return 1;
         }
