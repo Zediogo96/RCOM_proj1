@@ -15,7 +15,7 @@ unsigned int get_controlpacket(unsigned char *filename, int fileSize, int start,
     {
         bytes_filename++;
     }
-    
+
     if (filename_size > 255)
     {
         printf("log > Filename size is greater than 1 byte, aborting...\n");
@@ -23,13 +23,14 @@ unsigned int get_controlpacket(unsigned char *filename, int fileSize, int start,
     }
 
     unsigned char hex_size[BUF_SIZE] = {0};
-    
+
     sprintf(hex_size, "%02lX", fileSize);
 
     unsigned int bytes_file = strelen(hexaSize);
 
     // CHECK IF BYTES_FILE IS EVEN
-    if (bytes_file % 2 != 0) bytes_file++;
+    if (bytes_file % 2 != 0)
+        bytes_file++;
 
     bytes_file /= 2;
 
@@ -51,31 +52,100 @@ unsigned int get_controlpacket(unsigned char *filename, int fileSize, int start,
     packet[index++] = filename_size;
     // APPENDING T_SIZE TO PACKET
     packet[index++] = T_SIZE;
-    packet[index++] = bytes_filename;   
-
+    packet[index++] = bytes_filename;
 
     // VERIFICAR ESTA PARTE, PODE ESTAR MAL O SHIFT
     for (int i = 0; i < 4; i++)
         packet[index++] = (fileSize >> (8 * i)) & 0xFF;
-    
+
     return index; // alias packetSize
 }
 
-
-unsigned int get_datapacket(unsigned char * file_data, unsigned int data_size, unsigned int count)
-{  
+unsigned int get_datapacket(unsigned char *file_data, unsigned int data_size, unsigned int count)
+{
     int l1 = data_size / 256;
     int l2 = data_size % 256;
 
     unsigned char packet[PACKET_MAX_SIZE] = {0};
 
-    packet[0] = C_DATA; // 0x01
+    packet[0] = C_DATA;      // 0x01
     packet[1] = count % 256; // OU 255???
-    packet[2] = l1; 
-    packet[3] = l2; 
-    
+    packet[2] = l1;
+    packet[3] = l2;
+
     for (int k = 0; k < data_size; k++)
-        packet[4 + k] = file_data[k];    
+        packet[4 + k] = file_data[k];
 
     return data_size + 4; // bc of first 4 elements of buffer
+}
+
+unsigned int handle_packet(unsigned char *packet, unsigned int *size)
+{
+    unsigned int count = 0;
+    unsigned int name_size = 0;
+    unsigned int real_size = 0;
+
+    switch (packet[0])
+    {
+    case C_START:
+        if (packet[1] == T_NAME)
+        {
+            unsigned int new_size = 0;
+            name_size = packet[2];
+
+            real_size = packet[4 + name_size];
+            for (int i = 0; i < real_size; i++)
+            {
+                new_size += packet[5 + name_size + i] << (8 * i);
+            }
+            *size = new_size; // size of file
+
+            for (int i = 0; i < name_size; i++)
+            {
+                packet[i] = packet[3 + i];
+                printf("%c", packet[3 + i]);
+            }
+            packet[name_size] = '\0'; // end of string
+        }
+        else if (packet[1] == T_SIZE)
+        {
+            real_size[1] = packet[2]; // 1st byte of size
+            unsigned int new_size = 0;
+
+            int i;
+
+            for (i = 0; i < real_size[1]; i++)
+            {
+                new_size += packet[3 + i] << (8 * i);
+            }
+            *size = new_size; // size of file
+            i += 3;
+
+            if (packet[i] == T_NAME)
+            {
+                name_size = packet[i + 1];
+                for (int j = 0; j < name_size; j++)
+                {
+                    packet[j] = packet[i + 2 + j];
+                    printf("%c", packet[i + 2 + j]);
+                }
+                packet[name_size] = '\0'; // end of string
+            }
+            else
+            {
+                printf("log > Error in packet, aborting...\n");
+                return 0;
+            }
+        }
+        return 2;
+    /* case C_END: NOT SURE IF ANY HANDLING IS NEEDED FOR THIS */
+    case C_DATA:
+        count = packet[1];
+        *size = packet[2] * 256 + packet[3]; // size of data
+        return 1;
+    case C_DISC:
+        return 4;
+    default:
+        return 0;
+    }
 }
