@@ -94,12 +94,21 @@ int llwrite(const unsigned char *buf, int bufSize)
 {
     unsigned char frame[2 * PACKET_MAX_SIZE + 6] = {0};
 
+    printf("\n Building frame: ");
+
+    for (int i = 0 /* verificar se está correcto */; i < bufSize; i++)
+        printf("%02x|", buf[i]);
+
     // buildFrame
     int frameSize = buildInformationFrame(&frame, buf, bufSize, ca);
 
     // SendFrame, this is using the global variable, will refactor if I have time
     if (sender_information_send(frame, frameSize, ll_info.nRetransmissions, ll_info.timeout) == -1)
         return -1;
+
+    printf("\n Building complete: ");
+    for (int i = 0 /* verificar se está correcto */; i < bufSize; i++)
+        printf("%02x|", buf[i]);
 
     // check for errors 
     if (frameSize < 0) return -1;
