@@ -46,6 +46,10 @@
 
 #define PACKET_MAX_SIZE 128
 
+/** 
+ * @brief DON'T FORGET BCC1 = HEADER, BCC2 = DATA
+*/
+
 /* ************** FOR STUFFING USE ************** */
 
 #define ESCAPE_OCTET 0x7D

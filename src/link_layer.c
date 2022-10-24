@@ -133,6 +133,9 @@ int llread(unsigned char *packet)
 ////////////////////////////////////////////////
 int llclose(int showStatistics)
 {
+
+    // use some kind of C library for time measurement
+    
     if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
     {
         perror("tcsetattr");
