@@ -15,8 +15,8 @@ int sm_process_states(unsigned char value, int fd, LinkLayerRole role)
     {
         switch (state)
         {
-        case 0:
-            if (value == 0x7E) // octet 01111110
+        case 0: 
+            if (value == FLAG) // octet 01111110
             {
                 printf("log > Received flag \n");
                 state = 1;
@@ -26,7 +26,7 @@ int sm_process_states(unsigned char value, int fd, LinkLayerRole role)
             }
             break;
         case 1:
-            if (value != 0x7E)
+            if (value != FLAG)
             {
                 state = 2;
                 saved_c[idx] = value;
