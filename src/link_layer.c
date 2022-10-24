@@ -66,7 +66,7 @@ int llopen(LinkLayer connectionParameters)
         return -1;
     }
 
-    printf("New termios structure set\n");
+    printf("\nNew termios structure set\n");
 
     if (connectionParameters.role == LlRx)
     {
