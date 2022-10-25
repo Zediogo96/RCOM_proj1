@@ -1,7 +1,6 @@
 // Application layer protocol implementation
 
 #include "application_layer.h"
-#include "link_layer.h"
 
 int stats = 1; // for now, always show statistics
 // change for macros
@@ -84,17 +83,24 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         while ((bytes_to_send = read(file, buffer, PACKET_MAX_SIZE)) > 0)
         {
             bytes_sent += bytes_to_send;
-            bytes_to_send = get_data_packet(&buffer, bytes_to_send, counter);
+            bytes_to_send = get_datapacket(&buffer, bytes_to_send, counter);
             
             if (llwrite(buffer, bytes_to_send) == -1)
             {
                 printf("Error sending data packet\n");
                 // llclose
-                return -1;
+                return;
             }
         }
 
         // send end control packet
+        bytes_to_send = get_controlpacket(filename, file_size, FALSE, buffer);
+        if (llwrite(buffer, bytes_to_send) == -1)
+        {
+            printf("Error sending end control packet\n");
+            // llclose
+            return;
+        }
     }
     else if (connection.role == LlRx)
     {

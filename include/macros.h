@@ -1,8 +1,6 @@
 #ifndef _MACROS_H_
 #define _MACROS_H_
 
-#define BAUDRATE B38400
-
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 
 #define FALSE 0
@@ -12,7 +10,6 @@
 
 #define DISC 0x0B
 
-#define TIMEOUT 2 // mudar possívelmente
 #define NUM_MAX_TRIES 5
 
 /* ************** CHECKAR MELHOR ************** */

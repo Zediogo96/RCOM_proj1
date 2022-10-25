@@ -1,4 +1,6 @@
 #include <unistd.h>
+#include <stdio.h>
+
 #include "macros.h"
 #include "link_layer.h"
 #include "state_machine.h"
@@ -25,10 +27,10 @@ int receiverStart(int fd)
 int send_supervision_frame(int fd, int type, int ca)
 {
     unsigned char buffer[5] = {FLAG, A, C_SET, A^C_SET, FLAG};
-    if (type == 0) buffer[2] = C_REJ(ca);; // CA is 0 or 1
+    if (type == 0) buffer[2] = C_REJ(ca); // CA is 0 or 1
     else buffer[2] = C_RR(ca); // CA is 0 or 1
 
-    buffer[3] == buffer[1] ^ buffer[2];
+    buffer[3] = (buffer[1] ^ buffer[2]);
 
     int bytes = write(fd, buffer, 5);
 

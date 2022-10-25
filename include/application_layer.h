@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <link_layer.h>
+#include "macros.h"
+#include "packet.h"
 
 // Application layer main function.
 // Arguments:

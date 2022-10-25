@@ -107,8 +107,7 @@ int llwrite(const unsigned char *buf, int bufSize)
         return -1;
     else
     {
-        if (ca == 0 ? ca = 1 : ca = 0)
-            ;
+        (ca == 0) ? (ca = 1) : (ca = 0); // toggle ca
     }
 
     printf("\n Building complete: ");
@@ -137,7 +136,7 @@ int llread(unsigned char *packet)
     {
         int bytes_ = read(fd, &buf, 1);
 
-        if (buf != 0 && bytes_ > -1)
+        if (/* buf != 0 && GIVES COMPILER WARNING */ bytes_ > -1)
         {
             int answer = data_state_machine(buf[0], fd, LlRx);
             switch (answer)
@@ -182,22 +181,23 @@ int llread(unsigned char *packet)
 
         return 0;
     }
+}
 
-    ////////////////////////////////////////////////
-    // LLCLOSE
-    ////////////////////////////////////////////////
-    int llclose(int showStatistics)
+////////////////////////////////////////////////
+// LLCLOSE
+////////////////////////////////////////////////
+int llclose(int showStatistics)
+{
+
+    // use some kind of C library for time measurement
+
+    if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
     {
-
-        // use some kind of C library for time measurement
-
-        if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
-        {
-            perror("tcsetattr");
-            return -1;
-        }
-
-        close(fd);
-
-        return 1;
+        perror("tcsetattr");
+        return -1;
     }
+
+    close(fd);
+
+    return 1;
+}
