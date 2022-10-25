@@ -136,17 +136,14 @@ int llread(unsigned char *packet)
     {
         int bytes_ = read(fd, &buf, 1);
 
-        if (/* buf != 0 && GIVES COMPILER WARNING */ bytes_ > -1)
-        {
+        if (bytes_ > -1) {
             int answer = data_state_machine(buf[0], fd, LlRx);
-            switch (answer)
-            {
-            case 1:
+            switch (answer) {
+                case 1:
 
-                if (checkBCC2(read_packet, packet_size) == FALSE)
-                {
-                    printf("\n BCC2 is not correct\n");
-                    reset_data_state_machine();
+                    if (checkBCC2(read_packet, packet_size) == FALSE) {
+                        printf("\n BCC2 is not correct\n");
+                        reset_data_state_machine();
                     send_supervision_frame(fd, 0, ca);
                     break;
                 }

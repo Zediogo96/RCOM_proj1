@@ -16,10 +16,10 @@
 #define ADDRESS_T_to_R 0x03
 #define ADDRESS_R_to_T 0x01
 
-#define FLAG 0x7E
 
 /* ************** FIELDS ************** */
 
+#define FLAG 0x7E
 #define A 0x03                     // ADDRESS
 #define C_SET 0x03                 // SET UP
 #define C_UA 0x07                  // UNUMBERED ACKNOWLEDGEMENT
@@ -39,7 +39,6 @@
 // TO BE USED IN GETCONTROLPACKET
 #define C_START 0x02 // CONTROL
 #define C_END 0x03   // CONTROL
-
 
 #define T_SIZE 0x00  // CONTROL
 #define T_NAME 0x01  // CONTROL

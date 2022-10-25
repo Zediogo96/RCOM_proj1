@@ -124,7 +124,6 @@ int data_state_machine(unsigned char byte, int fd, LinkLayerRole role)
                 return 0;
             }
             break;
-        // ANALISAR MELHOR ESTE
         case A_RECEIVED:
             if (byte != FLAG)
             {
@@ -133,20 +132,20 @@ int data_state_machine(unsigned char byte, int fd, LinkLayerRole role)
                 return 0;
             }
             break;
-
-        // ESTE TAMBÉM É DUVIDOSO
         case C_RECEIVED:
-            if (byte == (dataSavedChars[1] ^ dataSavedChars[2]))
-            {
+            if (byte == (dataSavedChars[1] ^ dataSavedChars[2])) {
                 data_state = RECEIVING_PACKET;
                 dataSavedChars[data_ptr++] = byte;
                 return 0;
-            }
-            else
-            {
-                data_state = BCC1_RECEIVED;
+            } else if (byte == FLAG) {
+                data_state = F_RECEIVED;
                 data_ptr = 0;
-                return -1;
+                return 0;
+            } else {
+                printf("log > Bad input, restarting... \n");
+                data_ptr = 0;
+                reset_data_state_machine();
+                return 0;
             }
             break;
         case RECEIVING_PACKET:
@@ -160,9 +159,7 @@ int data_state_machine(unsigned char byte, int fd, LinkLayerRole role)
             }
             else
                 return 2;
-
             break;
-
         default:
             break;
         }

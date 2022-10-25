@@ -115,6 +115,14 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     }
     else if (connection.role == LlRx)
     {
+        int *destination_file;
+        int received_DISC = FALSE;
+
+        unsigned char *buffer[PACKET_MAX_SIZE] = {0}; // buffer for received packets
+        while (!received_DISC) {
+            // llread
+        }
+
         // receive stuff
         // use llread to read from the buffer
     }
