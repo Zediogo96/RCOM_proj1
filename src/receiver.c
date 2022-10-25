@@ -13,22 +13,22 @@ int receiverStart(int fd)
     while (TRUE)
     {
         int _bytes = read(fd, r_buffer, 1);
-        if (/* r_buffer != 0 && COMPILER DÁ WARNING */ _bytes > -1)
+        if (_bytes > -1)
         {
-            int answer = sm_process_states(r_buffer[0], fd, LlRx);
-            if (answer == 1)
-                return 1; // POSSÍVEL REFACTOR AQUI
+            if (sm_process_states(r_buffer[0], fd, LlRx) == 1)
+                return 1;
         }
     }
-
     return 0;
 }
 
 int send_supervision_frame(int fd, int type, int ca)
 {
-    unsigned char buffer[5] = {FLAG, A, C_SET, A^C_SET, FLAG};
-    if (type == 0) buffer[2] = C_REJ(ca); // CA is 0 or 1
-    else buffer[2] = C_RR(ca); // CA is 0 or 1
+    unsigned char buffer[5] = {FLAG, A, C_SET, A ^ C_SET, FLAG};
+    if (type == 0)
+        buffer[2] = C_REJ(ca); // CA is 0 or 1
+    else
+        buffer[2] = C_RR(ca); // CA is 0 or 1
 
     buffer[3] = (buffer[1] ^ buffer[2]);
 
@@ -38,14 +38,4 @@ int send_supervision_frame(int fd, int type, int ca)
     return bytes;
 }
 
-
-
-
 // received disconnect
-
-/////////////////////////////////////////
-/////////////////////////////////////////
-/////////////////////////////////////////
-/////////////////////////////////////////
-/////////////////////////////////////////
-

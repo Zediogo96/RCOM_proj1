@@ -14,7 +14,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     // snprintf(connection.serialPort, sizeof(connection.serialPort), "%s\n", serialPort);  //copy serial port number to link layer struct
 
     // swap snprintf connection.serialPort to serialPort
-    strncpy(connection.serialPort, serialPort, sizeof(serialPort) + 3);
+    strncpy(connection.serialPort, serialPort, sizeof(serialPort) + 4);
 
     // see what is the role of the device running the application
 
@@ -36,9 +36,9 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     connection.nRetransmissions = nTries; // copy number of tries to link layer struct
     connection.timeout = timeout;         // copy timeout to link layer struct
 
-    if (llopen(connection) == (-1))
+    if (llopen(connection) < 0)
     {
-        printf("log > Error in llopen, aborting...\n");
+        printf("\n log > Error in llopen, aborting...\n");
         // llclose
         return;
     }
@@ -68,11 +68,15 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             // llclose
             return;
         }
+
+        
         ///////// GET FILE SIZE /////////
         fseek(file, 0, SEEK_END); // seek to end of file
         file_size = ftell(file);  // get current file pointer
         rewind(file);             // seek back to beginning of file
         /////////////////////////////////
+
+        printf("open file");
 
         unsigned char buffer[PACKET_MAX_SIZE] = { 0 };
         unsigned int bytes_to_send = get_controlpacket(filename, file_size, TRUE, buffer);
