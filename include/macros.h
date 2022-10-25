@@ -24,8 +24,8 @@
 #define C_SET 0x03                 // SET UP
 #define C_UA 0x07                  // UNUMBERED ACKNOWLEDGEMENT
 #define C_DISC 0x0B                // DISCONNECT
-#define C_RR(n)(0x06 | (n >> 7))  // RECEIVER READY / POSITIVE ACKNOWLEDGMENT
-#define C_REJ(n)(0x01 | (n >> 7)) // RECEIVER REJECTED / NEGATIVE ACKNOWLEDGEMENT
+#define C_RR(n)(0x06 | (n << 7))  // RECEIVER READY / POSITIVE ACKNOWLEDGMENT
+#define C_REJ(n)(0x01 | (n << 7)) // RECEIVER REJECTED / NEGATIVE ACKNOWLEDGEMENT
 
 /* ************** INFORMATION FRAME ************** */
 
@@ -35,15 +35,12 @@
 /* ************** PACKETS ************** */
 
 #define C_DATA 0x01  // DATA
-
-// TO BE USED IN GETCONTROLPACKET
 #define C_START 0x02 // CONTROL
 #define C_END 0x03   // CONTROL
-
 #define T_SIZE 0x00  // CONTROL
 #define T_NAME 0x01  // CONTROL
 
-#define PACKET_MAX_SIZE 128
+#define PACKET_MAX_SIZE 256
 
 /** 
  * @brief DON'T FORGET BCC1 = HEADER, BCC2 = DATA
