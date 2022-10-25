@@ -27,7 +27,7 @@ LinkLayer ll_info;
 ////////////////////////////////////////////////
 
 int llopen(LinkLayer connectionParameters)
-{   
+{
 
     printf("Opening connection %s", connectionParameters.serialPort);
 
@@ -105,21 +105,22 @@ int llwrite(const unsigned char *buf, int bufSize)
     // SendFrame, this is using the global variable, will refactor if I have time
     if (sender_information_send(frame, frameSize, ll_info.nRetransmissions, ll_info.timeout) == -1)
         return -1;
-    else {
-        if (ca == 0 ? ca = 1 : ca = 0);
+    else
+    {
+        if (ca == 0 ? ca = 1 : ca = 0)
+            ;
     }
 
     printf("\n Building complete: ");
     for (int i = 0 /* verificar se está correcto */; i < bufSize; i++)
         printf("%02x|", buf[i]);
 
-    // check for errors 
-    if (frameSize < 0) return -1;
+    // check for errors
+    if (frameSize < 0)
+        return -1;
 
     return 1;
 }
-
-
 
 ////////////////////////////////////////////////
 // LLREAD
@@ -127,26 +128,76 @@ int llwrite(const unsigned char *buf, int bufSize)
 int llread(unsigned char *packet)
 {
     // TODO
+    int stuffing = FALSE;
+    int packet_size = 0;
+    unsigned char read_packet[PACKET_MAX_SIZE] = {0};
+    unsigned char buf[1] = {0};
 
-
-    return 0;
-}
-
-////////////////////////////////////////////////
-// LLCLOSE
-////////////////////////////////////////////////
-int llclose(int showStatistics)
-{
-
-    // use some kind of C library for time measurement
-    
-    if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
+    while (1)
     {
-        perror("tcsetattr");
-        return -1;
+        int bytes_ = read(fd, &buf, 1);
+
+        if (buf != 0 && bytes_ > -1)
+        {
+            int answer = data_state_machine(buf[0], fd, LlRx);
+            switch (answer)
+            {
+            case 1:
+
+                if (checkBCC2(read_packet, packet_size) == FALSE)
+                {
+                    printf("\n BCC2 is not correct\n");
+                    reset_data_state_machine();
+                    send_supervision_frame(fd, 0, ca);
+                    break;
+                }
+                else
+                {
+                    for (int i = 0; i < packet_size; i++)
+                        packet[i] = read_packet[i];
+
+                    if (ca == 0)
+                        ca = 1;
+                    else
+                        ca = 0;
+                    return packet_size - 1;
+                    break;
+                }
+            case 2:
+                if (stuffing == TRUE)
+                {
+                    stuffing = FALSE;
+                    packet[packet_size++] = buf[0] + 0x20;
+                }
+                else
+                    packet[packet_size++] = buf[0] + 0x20;
+                break;
+            case 3:
+                stuffing = TRUE;
+                break;
+            default:
+                break;
+            }
+        }
+
+        return 0;
     }
 
-    close(fd);
+    ////////////////////////////////////////////////
+    // LLCLOSE
+    ////////////////////////////////////////////////
+    int llclose(int showStatistics)
+    {
 
-    return 1;
-}
+        // use some kind of C library for time measurement
+
+        if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
+        {
+            perror("tcsetattr");
+            return -1;
+        }
+
+        close(fd);
+
+        return 1;
+    }

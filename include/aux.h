@@ -67,4 +67,21 @@ int destuffing(unsigned char *data, int data_size)
     return sizeof(new_data);
 }
 
+
+int checkBCC2(unsigned char *message, int sizeMessage)
+{
+  int i = 1;
+  unsigned char BCC2 = message[0];
+  for (; i < sizeMessage - 1; i++)
+  {
+    BCC2 ^= message[i];
+  }
+  if (BCC2 == message[sizeMessage - 1])
+  {
+    return TRUE;
+  }
+  else
+    return FALSE;
+}
+
 #endif // _AUX_H_

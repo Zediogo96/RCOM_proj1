@@ -180,7 +180,7 @@ int response_state = 0;
 unsigned char response_saved_c[BUFFER_SIZE] = {};
 int res_ptr = 0;
 
-void reset_answer_state_machine()
+void reset_data_state_machine()
 {
     response_state = 0;
     res_ptr = 0;
