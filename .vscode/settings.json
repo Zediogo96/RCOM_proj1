@@ -5,7 +5,8 @@
         "link_layer.h": "c",
         "transmitter.h": "c",
         "stdio.h": "c",
-        "macros.h": "c"
+        "macros.h": "c",
+        "type_traits": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

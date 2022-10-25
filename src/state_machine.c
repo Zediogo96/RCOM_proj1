@@ -18,10 +18,8 @@ int sm_process_states(unsigned char value, int fd, LinkLayerRole role)
         case 0:
             if (value == FLAG) // octet 01111110
             {
-                printf("log > Received flag \n");
                 state = 1;
-                saved_c[idx] = value;
-                idx++;
+                saved_c[idx++] = value;
                 return 0;
             }
             break;
@@ -29,14 +27,12 @@ int sm_process_states(unsigned char value, int fd, LinkLayerRole role)
             if (value != FLAG)
             {
                 state = 2;
-                saved_c[idx] = value;
-                idx++;
+                saved_c[idx++] = value;
                 return 0;
             }
         case 2:
-            saved_c[idx] = value;
-            idx++;
-            if (value == 0x7E)
+            saved_c[idx++] = value;
+            if (value == FLAG)
                 state = 3;
             else
                 return 0;
@@ -46,7 +42,7 @@ int sm_process_states(unsigned char value, int fd, LinkLayerRole role)
             else
             {
                 state = 0;
-                printf("log -> Bad input, restarting... \n");
+                printf("log > Bad input, restarting... \n");
                 idx = 0;
                 return 0;
             }
@@ -55,21 +51,23 @@ int sm_process_states(unsigned char value, int fd, LinkLayerRole role)
             idx = 0;
             if (role == LlRx)
             {
-                if (saved_c[2] == 0x03)
-                {
-                    saved_c[2] = 0x07;
-                    saved_c[3] = saved_c[1] ^ saved_c[2];
-                    saved_c[4] = 0x7E;
-                    printf("log -> UA will be sent.. \n");
-                    write(fd, saved_c, BUFFER_SIZE);
-                    return 1;
-                }
+                saved_c[2] = C_UA;
+                saved_c[3] = saved_c[1] ^ saved_c[2];
+                saved_c[4] = FLAG; // add flag
+                printf("log -> UA will be sent.. \n");
+                write(fd, saved_c, BUFFER_SIZE);
+                return 1;
             }
             else if (role == LlTx)
             {
-                if (saved_c[2] == 0x07)
+                if (saved_c[2] == C_UA)
                 {
-                    printf("log -> Deactivating alarm. \n");
+                    printf("log > Deactivating alarm. \n");
+                    return 1;
+                }
+                else 
+                {
+                    printf("log > NOT UA. \n");
                     return 1;
                 }
             }

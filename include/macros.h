@@ -9,7 +9,6 @@
 #define BUFFER_SIZE 256
 
 #define DISC 0x0B
-
 #define NUM_MAX_TRIES 5
 
 /* ************** CHECKAR MELHOR ************** */

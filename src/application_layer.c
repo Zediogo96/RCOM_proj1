@@ -38,11 +38,11 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
     if (llopen(connection) < 0)
     {
-        printf("\n log > Error in llopen, aborting...\n");
+        printf("\nlog > Error in llopen, aborting...\n");
         // llclose
         return;
     }
-    else printf("\n Connection was sucessfully established \n");
+    else printf("\nlog > Connection was sucessfully established \n");
 
     // if transmitter, send data
 
@@ -64,7 +64,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
         if (file == NULL)
         {
-            printf("Error opening file");
+            printf("\nlog > Error opening file");
             // llclose
             return;
         }
@@ -91,7 +91,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             
             if (llwrite(buffer, bytes_to_send) == -1)
             {
-                printf("Error sending data packet\n");
+                printf("\nlog > Error sending data packet\n");
                 // llclose
                 return;
             }
@@ -101,7 +101,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         bytes_to_send = get_controlpacket(filename, file_size, FALSE, buffer);
         if (llwrite(buffer, bytes_to_send) == -1)
         {
-            printf("Error sending end control packet\n");
+            printf("\nlog > Error sending end control packet\n");
             // llclose
             return;
         }
@@ -116,7 +116,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
     if (llclose(stats) == (-1))
     {
-        printf("\nError: Close failed!\n");
+        printf("\nlog > Error: llclose failed!\n");
         return;
     }
 }

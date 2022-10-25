@@ -26,11 +26,10 @@ int transmitter_ctrl_receive()
     unsigned char t_buffer[BUFFER_SIZE] = {0};
 
     int bytes = read(t_fd, t_buffer, 1);
-    if (/* (t_buffer != 0) && COMPILER DÁ WARNING */ (bytes > -1))
+    if (bytes > -1)
     {   
-        printf("Received %02x \n", t_buffer[0]);
-        int answer = sm_process_states(t_buffer[0], t_fd, LlTx);
-        if (answer == 1)
+        /* printf("Received %02x \n", t_buffer[0]); // debugging */
+        if (sm_process_states(t_buffer[0], t_fd, LlTx) == 1)
         {
             printf("log -> Transmitter: received UA\n");
             kill_alarm();
@@ -47,7 +46,7 @@ int transmitter_start(int new_fd, int new_nRetransmissions, int timeout)
     t_nRetransmissions = new_nRetransmissions;
 
     // Number maximum number of retransmissions was not reached
-    while (t_nRetransmissions > 0)
+    while (t_nRetransmissions >= 0)
     {
         if (!alarm_enabled)
         {
