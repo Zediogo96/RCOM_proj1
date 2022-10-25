@@ -58,6 +58,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
         ///////////////////////////////// /////////// /////////////////////////////////        ///////////////////////////////// RESUMO STEPS /////////////////////////////////
 
+        printf("before open file\n"); // DEBUGGING
         // open file with filename
         FILE *file = fopen(filename, "r");
         unsigned int file_size;
@@ -76,7 +77,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         rewind(file);             // seek back to beginning of file
         /////////////////////////////////
 
-        printf("open file");
+        printf("AFTER open file\n"); // DEBUGGING
 
         unsigned char buffer[PACKET_MAX_SIZE] = { 0 };
         unsigned int bytes_to_send = get_controlpacket(filename, file_size, TRUE, buffer);

@@ -65,11 +65,6 @@ int sm_process_states(unsigned char value, int fd, LinkLayerRole role)
                     printf("log > Deactivating alarm. \n");
                     return 1;
                 }
-                else 
-                {
-                    printf("log > NOT UA. \n");
-                    return 1;
-                }
             }
             printf("log > Wrong C \n");
             return -1;
