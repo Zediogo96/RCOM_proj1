@@ -104,7 +104,7 @@ void reset_data_state_machine()
 
 int data_state_machine(unsigned char byte, int fd, LinkLayerRole role)
 {
-    while (1)
+    while (TRUE)
     {
         switch (data_state)
         {
@@ -133,16 +133,21 @@ int data_state_machine(unsigned char byte, int fd, LinkLayerRole role)
             }
             break;
         case C_RECEIVED:
-            if (byte == (dataSavedChars[1] ^ dataSavedChars[2])) {
+            if (byte == (dataSavedChars[1] ^ dataSavedChars[2]))
+            {
                 data_state = RECEIVING_PACKET;
                 dataSavedChars[data_ptr++] = byte;
                 return 0;
-            } else if (byte == FLAG) {
+            }
+            else if (byte == FLAG)
+            {
                 data_state = F_RECEIVED;
                 data_ptr = 0;
                 return 0;
-            } else {
-                printf("log > Bad input, restarting... \n");
+            }
+            else
+            {
+                printf("log > Protocol error. \n");
                 data_ptr = 0;
                 reset_data_state_machine();
                 return 0;
@@ -160,9 +165,8 @@ int data_state_machine(unsigned char byte, int fd, LinkLayerRole role)
             else
                 return 2;
             break;
-        default:
-            break;
         }
+        return 0;
     }
 }
 

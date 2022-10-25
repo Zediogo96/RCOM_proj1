@@ -94,11 +94,6 @@ int llwrite(const unsigned char *buf, int bufSize)
 {
     unsigned char frame[2 * PACKET_MAX_SIZE + 6] = {0};
 
-    printf("\n Building frame: ");
-
-    for (int i = 0 /* verificar se está correcto */; i < bufSize; i++)
-        printf("%02x|", buf[i]);
-
     // buildFrame
     int frameSize = buildInformationFrame(&frame, buf, bufSize, ca);
 
@@ -109,11 +104,6 @@ int llwrite(const unsigned char *buf, int bufSize)
     {
         (ca == 0) ? (ca = 1) : (ca = 0); // toggle ca
     }
-
-    printf("\n Building complete: ");
-    for (int i = 0 /* verificar se está correcto */; i < bufSize; i++)
-        printf("%02x|", buf[i]);
-
     // check for errors
     if (frameSize < 0)
         return -1;
@@ -126,58 +116,63 @@ int llwrite(const unsigned char *buf, int bufSize)
 ////////////////////////////////////////////////
 int llread(unsigned char *packet)
 {
-    // TODO
+    printf("\n------------ LL READ ------------ \n");
+    unsigned char buffer[1] = {0};
+
     int stuffing = FALSE;
     int packet_size = 0;
     unsigned char read_packet[PACKET_MAX_SIZE] = {0};
-    unsigned char buf[1] = {0};
 
-    while (1)
-    {
-        int bytes_ = read(fd, &buf, 1);
+    while (TRUE) {
+        int bytes_ = read(fd, &buffer, 1);
 
-        if (bytes_ > -1) {
-            int answer = data_state_machine(buf[0], fd, LlRx);
-            switch (answer) {
-                case 1:
-
-                    if (checkBCC2(read_packet, packet_size) == FALSE) {
-                        printf("\n BCC2 is not correct\n");
-                        reset_data_state_machine();
+        if (buffer != 0 && bytes_ > -1) {
+            int ans = data_state_machine(buffer[0], fd, ca);
+            switch (ans)
+            {
+            case -1:
+                reset_data_state_machine();
+                return -1;
+                break;
+            case 1:;
+                unsigned char bcc2 = read_packet[0];
+                for (int i = 1; i < (packet_size - 1); i++) {
+                    bcc2 = (bcc2 ^ read_packet[i]);
+                }
+                if (bcc2 != read_packet[packet_size-1]) {
+                    printf("log > Data error. \n");
+                    reset_data_state_machine();
                     send_supervision_frame(fd, 0, ca);
                     break;
                 }
-                else
-                {
-                    for (int i = 0; i < packet_size; i++)
-                        packet[i] = read_packet[i];
-
-                    if (ca == 0)
-                        ca = 1;
-                    else
-                        ca = 0;
-                    return packet_size - 1;
-                    break;
+                for (int i = 0; i < packet_size-1; i++) {
+                    packet[i*8] = read_packet[i];
                 }
+                send_supervision_frame(fd, 1, ca);
+                if (ca == 0) ca = 1; else ca = 0;
+                printf("Information frame received. \n");
+                return packet_size-1;
+                break;
             case 2:
-                if (stuffing == TRUE)
-                {
+                if (stuffing) {
                     stuffing = FALSE;
-                    packet[packet_size++] = buf[0] + 0x20;
+                    read_packet[packet_size++] = buffer[0] + 0x20;
+                } else {
+                    read_packet[packet_size++] = buffer[0];
                 }
-                else
-                    packet[packet_size++] = buf[0] + 0x20;
                 break;
             case 3:
                 stuffing = TRUE;
+                break;
+            case 5:
+                send_supervision_frame(fd, 1, (ca == 0) ? 1 : 0);
                 break;
             default:
                 break;
             }
         }
-
-        return 0;
     }
+    return 0;
 }
 
 ////////////////////////////////////////////////

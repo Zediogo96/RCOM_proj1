@@ -74,10 +74,11 @@ int buildInformationFrame(unsigned char *frame, unsigned char packet[], int pack
     // SET ADDRESS
     frame[1] = A;
     // SET ALTERNATING CONTROL ADDRESS
-    if (CA == 0)
+    (CA == 0) ? (frame[2] = C_ZERO) : (frame[2] = C_ONE);
+    /* if (CA == 0)
         frame[2] = C_ZERO;
     else
-        frame[2] = C_ONE;
+        frame[2] = C_ONE; */
     // SET BCC1
     frame[3] = frame[1] ^ frame[2];
 
@@ -90,25 +91,17 @@ int buildInformationFrame(unsigned char *frame, unsigned char packet[], int pack
     for (int i = 0; i < packetSize; i++)
     {
         newPacket[i] = packet[i];
-        if (i == 1)
-        {
-            bcc2 = packet[i - 1] ^ packet[i];
-        }
-        else
-        {
-            bcc2 ^= packet[i];
-        }
+        bcc2 ^= packet[i];
     }
 
-    newPacket[packetSize + 1] = bcc2;
+    newPacket[packetSize] = bcc2;
 
-    packetSize = stuffing(newPacket, packetSize + 2);
+    packetSize = stuffing(newPacket, packetSize + 1);
 
     // copy newPacket to frame
     for (int i = 0; i < packetSize; i++)
     {
-        frame[frameSize] = newPacket[i];
-        frameSize++;
+        frame[frameSize++] = newPacket[i];
     }
 
     // SET LAST POS TO FLAG
@@ -136,10 +129,13 @@ int sender_information_send(unsigned char frameToSend[], int frameToSendSize, in
 {
     t_nRetransmissions = new_NRetransmissions;
 
-    while (t_nRetransmissions > 0)
+    while (TRUE)
     {
         if (!alarm_enabled)
         {
+            if (t_nRetransmissions == 0) {
+                printf("\nlog > Maximum number of retransmissions, aborting.\n")
+            }
             sendFrame(frameToSend, frameToSendSize);
             t_nRetransmissions--;
             start_alarm(timeout);
