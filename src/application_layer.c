@@ -60,6 +60,8 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
         ///////////////////////////////// /////////// /////////////////////////////////        ///////////////////////////////// RESUMO STEPS /////////////////////////////////
         printf("\ndebug 1\n");
+
+        printf("before open file\n"); // DEBUGGING
         // open file with filename
         
         struct stat file;
