@@ -60,6 +60,8 @@ int transmitter_start(int new_fd, int new_nRetransmissions, int timeout)
             return 1;
     }
 
+    printf("\nlog > Number of retransmissions exceeded\n"); // debugging
+
     return 0;
 }
 

@@ -84,4 +84,6 @@ int checkBCC2(unsigned char *message, int sizeMessage)
     return FALSE;
 }
 
+
+
 #endif // _AUX_H_

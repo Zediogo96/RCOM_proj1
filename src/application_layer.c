@@ -1,6 +1,8 @@
 // Application layer protocol implementation
 
 #include "application_layer.h"
+#include <sys/stat.h> // for stat()
+#include <fcntl.h> // for open() and O_RDONLY
 
 int stats = 1; // for now, always show statistics
 // change for macros
@@ -57,52 +59,55 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         // use llwrite to transmit the buffer
 
         ///////////////////////////////// /////////// /////////////////////////////////        ///////////////////////////////// RESUMO STEPS /////////////////////////////////
-
+        printf("\ndebug 1\n");
         // open file with filename
-        FILE *file = fopen(filename, "r");
-        unsigned int file_size;
+        
+        struct stat file;
+        stat(filename, &file);
 
-        if (file == NULL)
+        int file_fd = 0;
+
+        if ((file_fd = open(filename, O_RDONLY)) < 0)
         {
-            printf("\nlog > Error opening file");
+            printf("\nlog > Error opening file, aborting...\n");
             // llclose
             return;
         }
-
-        
-        ///////// GET FILE SIZE /////////
-        fseek(file, 0, SEEK_END); // seek to end of file
-        file_size = ftell(file);  // get current file pointer
-        rewind(file);             // seek back to beginning of file
-        /////////////////////////////////
-
-        printf("open file");
+        else printf("\nlog > File opened sucessfully\n");
 
         unsigned char buffer[PACKET_MAX_SIZE] = { 0 };
-        unsigned int bytes_to_send = get_controlpacket(filename, file_size, TRUE, buffer);
+        unsigned int bytes_to_send = get_controlpacket(filename, file.st_size, TRUE, buffer);
+
+        if (llwrite(buffer, bytes_to_send) < 0) {
+            printf("Failed to send information frame\n");
+            llclose(0);
+            return -1;
+        }
 
         unsigned counter = 0;
         int bytes_sent = 0;
 
-        while ((bytes_to_send = read(file, buffer, PACKET_MAX_SIZE)) > 0)
+        while ((bytes_to_send = read(file, buffer, PACKET_MAX_SIZE - 4)) > 0)
         {
             bytes_sent += bytes_to_send;
+            counter++;
             bytes_to_send = get_datapacket(&buffer, bytes_to_send, counter);
             
             if (llwrite(buffer, bytes_to_send) == -1)
             {
                 printf("\nlog > Error sending data packet\n");
-                // llclose
+                llclose(0);
                 return;
             }
         }
 
         // send end control packet
-        bytes_to_send = get_controlpacket(filename, file_size, FALSE, buffer);
+        bytes_to_send = get_controlpacket(filename, file.st_size, FALSE, buffer);
+
         if (llwrite(buffer, bytes_to_send) == -1)
         {
             printf("\nlog > Error sending end control packet\n");
-            // llclose
+            llclose(0);
             return;
         }
     }
