@@ -105,6 +105,9 @@ int llwrite(const unsigned char *buf, int bufSize)
     // SendFrame, this is using the global variable, will refactor if I have time
     if (sender_information_send(frame, frameSize, ll_info.nRetransmissions, ll_info.timeout) == -1)
         return -1;
+    else {
+        if (ca == 0 ? ca = 1 : ca = 0);
+    }
 
     printf("\n Building complete: ");
     for (int i = 0 /* verificar se está correcto */; i < bufSize; i++)
@@ -124,6 +127,7 @@ int llwrite(const unsigned char *buf, int bufSize)
 int llread(unsigned char *packet)
 {
     // TODO
+
 
     return 0;
 }

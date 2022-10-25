@@ -75,8 +75,19 @@ unsigned int get_datapacket(unsigned char *file_data, unsigned int data_size, un
     packet[2] = l1;
     packet[3] = l2;
 
+
+    // NOT SURE IF THERE IS A BETTER WAY TO DO THIS
+    // WILL LOOK INTO IF I HAVE TIME
+    //////////////////////////////////////////////////
+    // APPENDS FIRST FOUR BYTES OF PACKET TO FILE_DATA
     for (int k = 0; k < data_size; k++)
         packet[4 + k] = file_data[k];
+
+    for (int k = 0; k < data_size + 4; k++)
+        file_data[k] = packet[k];
+        /* printf("%02X ", packet[k]); // debugging purposes */
+    /////////////////////////////////////////////////
+    
 
     return data_size + 4; // bc of first 4 elements of buffer
 }
