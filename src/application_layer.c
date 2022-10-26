@@ -51,70 +51,77 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
     if (connection.role == LlTx)
     {
-        ///////////////////////////////// RESUMO STEPS /////////////////////////////////        ///////////////////////////////// RESUMO STEPS /////////////////////////////////
+        ///////////////////////////////// RESUMO STEPS /////////////////////////////////
 
         // send stuff
         // represent file
         // get control packet
         // write packets to buffer
         // use llwrite to transmit the buffer
+        // repeat
 
-        ///////////////////////////////// /////////// /////////////////////////////////        ///////////////////////////////// RESUMO STEPS /////////////////////////////////
+        ///////////////////////////////// /////////// /////////////////////////////////
 
-        printf("\ndebug 1\n");
+        //  printf("before open file\n"); // DEBUGGING
 
-        printf("before open file\n"); // DEBUGGING
-        // open file with filename
+        // open file with filename in binary mode
+        FILE * file = fopen(filename, "rb");
 
-        FILE *fileptr;
-    
-        // int nBytes = 200, curByte=0, index=0, nSequence = 0;
-        
-        fileptr = fopen(filename, "rb");        // Open the file in binary mode
-        if(fileptr == NULL){
-            printf("Couldn't find a file with that name, sorry :(\n");
+        int number_bytes = 200, current_byte = 0, idx = 0, number_sequence = 0;
+
+        unsigned char buffer[PACKET_MAX_SIZE] = {0}, bytes[200];
+
+        if(file == NULL){
+            printf("\nlog > Error opening the file\n");
             return;
         }
         else
             printf("\nlog > File opened sucessfully\n");
 
-        unsigned char buffer[PACKET_MAX_SIZE] = {0};
-        unsigned int bytes_to_send = get_controlpacket(filename, TRUE, buffer);
+        //////////////////////////////////// SEND FIRST CONTROL PACKET ///////////////////////////////////
+        int packet_size = get_controlpacket(filename, TRUE, &buffer);
 
-        if (llwrite(buffer, bytes_to_send) < 0)
+        if (llwrite(buffer, packet_size) < 0)
         {
-            printf("Failed to send information frame\n");
+            printf("\nlog > Error sending first control packet\n");
             llclose(0);
-            return -1;
+            return;
         }
 
-        /* unsigned counter = 0;
-        int bytes_sent = 0;
-
-        while ((bytes_to_send = read(file, buffer, PACKET_MAX_SIZE - 4)) > 0)
+        //////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        while (fread(&current_byte, (size_t) 1, (size_t) 1, file))
         {
-            bytes_sent += bytes_to_send;
-            counter++;
-            bytes_to_send = get_datapacket(&buffer, bytes_to_send, counter);
-
-            printf("----------- SENDING DATA PACKET %d -----------\n", counter);
-            if (llwrite(buffer, bytes_to_send) == -1)
+            packet_size = get_datapacket(bytes, &buffer, number_sequence++, index);
+            
+            for (int i = 0; i < sizeof(buffer); i++)
             {
-                printf("\nlog > Error sending data packet\n");
-                llclose(0);
-                return;
+                printf("%x ", buffer[i]);
+            }
+
+            {
+                if (llwrite(buffer, packet_size) == -1)
+                {   
+                    printf("\n log > Error sending writting packet\n");
+                    return;
+                }
             }
         }
- */
-        // send end control packet
-        bytes_to_send = get_controlpacket(filename, FALSE, buffer);
 
-        if (llwrite(buffer, bytes_to_send) == -1)
+
+
+        fclose(file);
+
+        //////////////////////////////////// SEND END CONTROL PACKET ///////////////////////////////////
+        packet_size = get_controlpacket(filename, FALSE, buffer);
+
+        if (llwrite(buffer, packet_size) == -1)
         {
             printf("\nlog > Error sending end control packet\n");
             llclose(0);
             return;
         }
+        //////////////////////////////////////////////////////////////////////////////////////////////////
     }
     else if (connection.role == LlRx)
     {

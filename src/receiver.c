@@ -11,7 +11,7 @@ unsigned char r_buffer[BUFFER_SIZE] = {0};
 int receiverStart(int fd)
 {
 
-    unsigned char buf[1] = {0}, saved_buffer[5] = {0};
+    unsigned char saved_buffer[5] = {0};
 
     int state = 0;
     int STOP = FALSE;

@@ -38,7 +38,7 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
     }
 
 
-    printf("packet: %02lx\n", file_size_bytes);
+    printf("packet size in Bytes: %02lx\n", file_size_bytes);
 
     (start == TRUE) ? (packet[0] = C_START) : (packet[0] = C_END);
     /* if (start == TRUE)
@@ -65,8 +65,10 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
     size_packet = 5+file_size_bytes+strlen(filename);
 
     for (int i = 0; i < size_packet; i++) {
-        printf("%c\n",packet[i]);
+        printf("%c",packet[i]);
     }
+
+    printf("\n");
     return size_packet;
 }
 
@@ -136,7 +138,7 @@ unsigned int handle_packet(unsigned char *packet, unsigned int *size)
                 for (int j = 0; j < name_size; j++)
                 {
                     packet[j] = packet[i + 2 + j];
-                    printf("%c", packet[i + 2 + j]);
+                    /* printf("%c", packet[i + 2 + j]); // DEBUGGING */
                 }
                 packet[name_size] = '\0'; // end of string
             }

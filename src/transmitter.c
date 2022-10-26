@@ -64,26 +64,24 @@ int transmitter_start(int fd, LinkLayer ll)
 }
 
 // GOOD
-int transmitter_ctrl_receive()
-{
-    unsigned char t_buffer[BUFFER_SIZE] = {0};
+// int transmitter_ctrl_receive()
+// {
+//     unsigned char t_buffer[BUFFER_SIZE] = {0};
 
-    int bytes = read(t_fd, t_buffer, 1);
-    if (bytes > -1)
-    {   
-        /* printf("Received %02x \n", t_buffer[0]); // debugging */
-        if (sm_process_states(t_buffer[0], t_fd, LlTx) == 1)
-        {
-            printf("log -> Transmitter: received UA\n");
-            kill_alarm();
-            return 1;
-        }
-    }
+//     int bytes = read(t_fd, t_buffer, 1);
+//     if (bytes > -1)
+//     {   
+//         /* printf("Received %02x \n", t_buffer[0]); // debugging */
+//         if (sm_process_states(t_buffer[0], t_fd, LlTx) == 1)
+//         {
+//             printf("log -> Transmitter: received UA\n");
+//             kill_alarm();
+//             return 1;
+//         }
+//     }
 
-    return 0;
-}
-
-
+//     return 0;
+// }
 
 int buildInformationFrame(unsigned char *frame, unsigned char packet[], int packetSize, unsigned int CA)
 {
@@ -95,7 +93,6 @@ int buildInformationFrame(unsigned char *frame, unsigned char packet[], int pack
     frame[1] = A;
     // SET ALTERNATING CONTROL ADDRESS
     (CA == 0) ? (frame[2] = C_ZERO) : (frame[2] = C_ONE);
-
     // SET BCC1
     frame[3] = frame[1] ^ frame[2];
 
