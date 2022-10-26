@@ -66,22 +66,20 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         printf("before open file\n"); // DEBUGGING
         // open file with filename
 
-        struct stat file;
-        stat(filename, &file);
-
-        int file_fd = 0;
-
-        if ((file_fd = open(filename, O_RDONLY)) < 0)
-        {
-            printf("\nlog > Error opening file, aborting...\n");
-            // llclose
+        FILE *fileptr;
+    
+        // int nBytes = 200, curByte=0, index=0, nSequence = 0;
+        
+        fileptr = fopen(filename, "rb");        // Open the file in binary mode
+        if(fileptr == NULL){
+            printf("Couldn't find a file with that name, sorry :(\n");
             return;
         }
         else
             printf("\nlog > File opened sucessfully\n");
 
         unsigned char buffer[PACKET_MAX_SIZE] = {0};
-        unsigned int bytes_to_send = get_controlpacket(filename, file.st_size, TRUE, buffer);
+        unsigned int bytes_to_send = get_controlpacket(filename, TRUE, buffer);
 
         if (llwrite(buffer, bytes_to_send) < 0)
         {
@@ -90,7 +88,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             return -1;
         }
 
-        unsigned counter = 0;
+        /* unsigned counter = 0;
         int bytes_sent = 0;
 
         while ((bytes_to_send = read(file, buffer, PACKET_MAX_SIZE - 4)) > 0)
@@ -107,9 +105,9 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
                 return;
             }
         }
-
+ */
         // send end control packet
-        bytes_to_send = get_controlpacket(filename, file.st_size, FALSE, buffer);
+        bytes_to_send = get_controlpacket(filename, FALSE, buffer);
 
         if (llwrite(buffer, bytes_to_send) == -1)
         {

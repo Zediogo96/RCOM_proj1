@@ -15,6 +15,6 @@ int buildInformationFrame(unsigned char *frame, unsigned char packet[], int pack
 
 int sendFrame(unsigned char frame_to_send[], int frameToSendSize);
 
-int sender_information_send(unsigned char frameToSend[], int frameToSendSize, int new_NRetransmissions, int timeout);
+int transmitter_info_send(unsigned char frameToSend[], int frameToSendSize, int new_NRetransmissions, int timeout, int ca);
 
 #endif // _TRANSMITTER_H_

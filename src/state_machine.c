@@ -182,7 +182,7 @@ void reset_answer_state_machine()
 
 int data_answer_machine(unsigned char byte, int fd, int CA)
 {
-    while (1)
+    while (TRUE)
     {
         switch (response_state)
         {
@@ -195,37 +195,41 @@ int data_answer_machine(unsigned char byte, int fd, int CA)
             }
             break; // case 0
         case 1:
-            if (byte == A)
+            if (byte != FLAG)
             {
                 response_state = 2;
                 response_saved_c[res_ptr++] = byte;
                 return 0;
             }
-            else
-            {
-                reset_answer_state_machine();
-                return -1;
-            }
-            break; // case 1
+            break;
         case 2:
-            // must save the value nonetheless?
-
+            response_saved_c[res_ptr++] = byte;
+            if (byte == FLAG) response_state = 3;
+            else
+                return 0;
+            break;
         // related to BCC, still needs to check it better
         case 3:
+            if (response_saved_c[3] == ((response_saved_c[1] ^ response_saved_c[2])) && res_ptr > 4)
+            {
+                state = 4;
+            }
+            else {
+                reset_answer_state_machine();
+                return 0;
+            }
 
         case 4:
 
             if (response_saved_c[2] == C_RR(0))
             {
-                if (CA == 0)
-                    return 1;
-                else
-                    return -1;
+                reset_answer_state_machine();
+                if (CA == 0) return 1; else return -1;
             }
             else if (response_saved_c[2] == C_REJ(0) || response_saved_c[2] == C_REJ(1))
             {
                 reset_answer_state_machine();
-                return -1;
+                if (CA == 0) return 1; else return -1;
             }
 
         default:

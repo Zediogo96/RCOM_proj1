@@ -1,7 +1,7 @@
 #ifndef _PACKET_H_
 #define _PACKET_H_
 
-unsigned int get_controlpacket(unsigned char *filename, int fileSize, int start, unsigned char packet[]);
+unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char packet[]);
 
 unsigned int get_datapacket(unsigned char *file_data, unsigned int data_size, unsigned int count);
 

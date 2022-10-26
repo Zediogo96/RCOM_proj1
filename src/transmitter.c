@@ -75,10 +75,7 @@ int buildInformationFrame(unsigned char *frame, unsigned char packet[], int pack
     frame[1] = A;
     // SET ALTERNATING CONTROL ADDRESS
     (CA == 0) ? (frame[2] = C_ZERO) : (frame[2] = C_ONE);
-    /* if (CA == 0)
-        frame[2] = C_ZERO;
-    else
-        frame[2] = C_ONE; */
+
     // SET BCC1
     frame[3] = frame[1] ^ frame[2];
 
@@ -114,18 +111,28 @@ int sendFrame(unsigned char frame_to_send[], int frameToSendSize)
 {
     int bytes = write(t_fd, frame_to_send, frameToSendSize);
     printf("\n");
-    for (int i = 0; i < frameToSendSize; i++) printf("%02x ", frame_to_send[i]);
+    /* for (int i = 0; i < frameToSendSize; i++) printf("%02x ", frame_to_send[i]); */
     printf("\nInformation frame sent, %d bytes written\n", bytes);
     return bytes;
 }
 
 // TODO 
-/* int transmitter_info_receiver()
-{
-    SHOULD USE STATE MACHINE AS WELL?
-} */
+int transmitter_info_receive(int ca) {
 
-int sender_information_send(unsigned char frameToSend[], int frameToSendSize, int new_NRetransmissions, int timeout)
+    unsigned char buffer[BUFFER_SIZE] = {0};
+
+    int bytes_ = read(t_fd, buffer, 1);
+    if (bytes_ > -1) {
+        if (data_answer_machine(buffer[0], t_fd, ca)) {
+            kill_alarm();
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+int transmitter_info_send(unsigned char frameToSend[], int frameToSendSize, int new_NRetransmissions, int timeout, int ca)
 {
     t_nRetransmissions = new_NRetransmissions;
 
@@ -134,7 +141,7 @@ int sender_information_send(unsigned char frameToSend[], int frameToSendSize, in
         if (!alarm_enabled)
         {
             if (t_nRetransmissions == 0) {
-                printf("\nlog > Maximum number of retransmissions, aborting.\n")
+                printf("\nlog > Maximum number of retransmissions, aborting.\n");
             }
             sendFrame(frameToSend, frameToSendSize);
             t_nRetransmissions--;
@@ -142,8 +149,8 @@ int sender_information_send(unsigned char frameToSend[], int frameToSendSize, in
         }
 
         // TODO, STILL DON'T UNDERSTAND IT ENTIRELY
-        /* if (transmitter_info_receive())
-            return 1; */
+        if (transmitter_info_receive(ca))
+            return 1;
     }
 
     return 0;

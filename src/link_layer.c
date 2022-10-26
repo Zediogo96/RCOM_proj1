@@ -98,7 +98,7 @@ int llwrite(const unsigned char *buf, int bufSize)
     int frameSize = buildInformationFrame(&frame, buf, bufSize, ca);
 
     // SendFrame, this is using the global variable, will refactor if I have time
-    if (sender_information_send(frame, frameSize, ll_info.nRetransmissions, ll_info.timeout) == -1)
+    if (transmitter_info_send(frame, frameSize, ll_info.nRetransmissions, ll_info.timeout, ca) == -1)
         return -1;
     else
     {
