@@ -10,15 +10,30 @@ unsigned char r_buffer[BUFFER_SIZE] = {0};
 
 int receiverStart(int fd)
 {
-    while (TRUE)
+
+    unsigned char buf[1] = {0}, saved_buffer[5] = {0};
+
+    int state = 0;
+    int STOP = FALSE;
+
+    while (STOP == FALSE)
     {
         int _bytes = read(fd, r_buffer, 1);
+        
         if (_bytes > -1)
-        {
-            if (sm_process_states(r_buffer[0], fd, LlRx) == 1)
-                return 1;
+        {   
+            // SM machine stopping is handled with the variable stop
+            sm_process_states(r_buffer[0], fd, &state, &saved_buffer, &STOP);
         }
     }
+
+    unsigned char ua_message [5] = {FLAG, A, C_UA, A ^ C_UA, FLAG};
+
+    int bytes = write(fd, ua_message, sizeof(ua_message));
+    printf("\nlog > UA message sent, %d bytes written\n", bytes);
+
+    alarm_enabled = FALSE;
+    
     return 0;
 }
 

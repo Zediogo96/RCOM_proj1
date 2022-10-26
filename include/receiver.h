@@ -1,6 +1,8 @@
 #ifndef _RECEIVER_H_
 #define _RECEIVER_H_
 
+#include "alarm.h"
+
 
 int receiverStart(int fd);
 

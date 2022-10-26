@@ -11,13 +11,54 @@ int t_fd;
 int t_nRetransmissions;
 
 // GOOD
-int sendSET()
+int sendSET(int fd)
 {
     unsigned char buffer_SET[5] = {FLAG, A, C_SET, A ^ C_SET, FLAG};
 
-    int bytes = write(t_fd, buffer_SET, 5);
-    printf("SET flag sent, %d bytes written\n", bytes);
+    int bytes = write(fd, buffer_SET, 5);
+    printf("\nlog > SET flag sent, %d bytes written\n", bytes);
     return bytes;
+}
+
+
+int transmitter_start(int fd, LinkLayer ll)
+{
+
+    unsigned char buffer[5] = {};
+
+    while (TRUE)
+    {   
+        if (alarm_count > ll.nRetransmissions)
+        {
+            printf("\nlog > Alarm limit reached, SET message not sent\n");
+            return -1;
+        }
+
+        if (!alarm_enabled)
+        {
+            int bytes = sendSET(fd);
+            start_alarm(ll.timeout);
+        }
+
+        int _bytes = read(fd, buffer, 5);
+
+        if (_bytes > -1 && buffer != 0 && buffer[0] == FLAG)
+        {   
+            if (buffer[2] != C_UA || (buffer[3] != (buffer[1] ^ buffer[2])))
+            {
+                printf("\nlog > UA not correct, continuing...\n");
+                alarm_enabled = FALSE;
+                continue;
+            }
+            else 
+            {
+                printf("\nlog > UA correctly received.\n");
+                alarm_enabled = FALSE;
+                break;
+            }
+        }
+    }
+    return 0;
 }
 
 // GOOD
@@ -40,45 +81,7 @@ int transmitter_ctrl_receive()
     return 0;
 }
 
-int transmitter_start(int fd, LinkLayer ll)
-{
-    unsigned char new_buf[5] = {0x7E, 0x03, 0x03, 0x00, 0x7E}; // SET message
 
-    while (TRUE)
-    {   
-        if (alarm_count >= ll.nRetransmissions)
-        {
-            printf("\nAlarm limit reached, SET message not sent\n");
-            return -1;
-        }
-
-        if (!alarm_enabled)
-        {
-            int bytes = write(fd, new_buf, sizeof(new_buf));
-            printf("\nSET message sent, %d bytes written\n", bytes);
-            start_alarm(ll.timeout);
-        }
-
-        int _bytes = read(fd, r_buffer, 5);
-
-        if (_bytes > -1 && r_buffer != 0 && r_buffer[0] == FLAG)
-        {   
-            if (r_buffer[2] != C_UA || (r_buffer[3] != (r_buffer[1] ^ r_buffer[2])))
-            {
-                printf("\nlog > UA not correct, continuing...\n");
-                alarm_enabled = FALSE;
-                continue;
-            }
-            else 
-            {
-                printf("\nlog > UA correctly received.\n");
-                alarm_enabled = FALSE;
-                break;
-            }
-        }
-    }
-    return 0;
-}
 
 int buildInformationFrame(unsigned char *frame, unsigned char packet[], int packetSize, unsigned int CA)
 {

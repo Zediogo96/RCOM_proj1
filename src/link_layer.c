@@ -74,13 +74,12 @@ int llopen(LinkLayer connectionParameters)
     
     if (connectionParameters.role == LlRx)
     {
-        if (!receiverStart(fd, connectionParameters))
+        if (receiverStart(fd))
             return -1;
     }
     else if (connectionParameters.role == LlTx)
     {
-
-        if (!transmitter_start(fd, connectionParameters.nRetransmissions, connectionParameters.timeout))
+        if (transmitter_start(fd, connectionParameters))
             return -1;
     }
 
