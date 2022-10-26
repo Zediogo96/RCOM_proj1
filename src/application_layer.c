@@ -51,27 +51,17 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
     if (connection.role == LlTx)
     {
-        ///////////////////////////////// RESUMO STEPS /////////////////////////////////
 
-        // send stuff
-        // represent file
-        // get control packet
-        // write packets to buffer
-        // use llwrite to transmit the buffer
-        // repeat
+        // open file in binary mode
+        FILE *file = fopen(filename, "rb");
 
-        ///////////////////////////////// /////////// /////////////////////////////////
-
-        //  printf("before open file\n"); // DEBUGGING
-
-        // open file with filename in binary mode
-        FILE * file = fopen(filename, "rb");
-
-        int number_bytes = 200, current_byte = 0, idx = 0, number_sequence = 0;
+        int number_bytes = 200, current_byte = 0, idx = 0, number_seq = 0;
+        int fileOver = FALSE;
 
         unsigned char buffer[PACKET_MAX_SIZE] = {0}, bytes[200];
 
-        if(file == NULL){
+        if (file == NULL)
+        {
             printf("\nlog > Error opening the file\n");
             return;
         }
@@ -89,26 +79,38 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////
-        
-        while (fread(&current_byte, (size_t) 1, (size_t) 1, file))
-        {
-            packet_size = get_datapacket(bytes, &buffer, number_sequence++, index);
-            
-            for (int i = 0; i < sizeof(buffer); i++)
-            {
-                printf("%x ", buffer[i]);
-            }
 
+        while (!fileOver)
+        {
+            if (!fread(&current_byte, (size_t)1, (size_t)1, file))
             {
+                fileOver = TRUE;
+                packet_size = get_datapacket(bytes, &buffer, number_seq++, index);
+
                 if (llwrite(buffer, packet_size) == -1)
-                {   
+                {
                     printf("\n log > Error sending writting packet\n");
                     return;
                 }
             }
+            else if (number_bytes == idx)
+            {
+
+                packet_size = get_datapacket(bytes, &buffer, number_seq++, index);
+
+                if (llwrite(buffer, packet_size) == -1)
+                {
+                    printf("\n log > Error sending writting packet\n");
+                    return;
+                }
+
+                memset(bytes, 0, sizeof(bytes));
+                memset(buffer, 0, sizeof(buffer));
+                idx = 0;
+            }
+
+            bytes[idx++] = current_byte;
         }
-
-
 
         fclose(file);
 
@@ -160,7 +162,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
                     {
                         write(destination_file, &buffer[i], 1);
                     }
-                    printf("\n");   
+                    printf("\n");
                 }
                 break;
             case 2:
