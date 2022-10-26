@@ -40,28 +40,43 @@ int transmitter_ctrl_receive()
     return 0;
 }
 
-int transmitter_start(int new_fd, int new_nRetransmissions, int timeout)
+int transmitter_start(int fd, LinkLayer ll)
 {
-    t_fd = new_fd;
-    t_nRetransmissions = new_nRetransmissions;
+    unsigned char new_buf[5] = {0x7E, 0x03, 0x03, 0x00, 0x7E}; // SET message
 
-    // Number maximum number of retransmissions was not reached
-    while (t_nRetransmissions >= 0)
-    {
-        if (!alarm_enabled)
+    while (TRUE)
+    {   
+        if (alarm_count >= ll.nRetransmissions)
         {
-            sendSET();
-            t_nRetransmissions--;
-            start_alarm(timeout);
+            printf("\nAlarm limit reached, SET message not sent\n");
+            return -1;
         }
 
-        // Verificar se estar parte está certa
-        if (transmitter_ctrl_receive())
-            return 1;
+        if (!alarm_enabled)
+        {
+            int bytes = write(fd, new_buf, sizeof(new_buf));
+            printf("\nSET message sent, %d bytes written\n", bytes);
+            start_alarm(ll.timeout);
+        }
+
+        int _bytes = read(fd, r_buffer, 5);
+
+        if (_bytes > -1 && r_buffer != 0 && r_buffer[0] == FLAG)
+        {   
+            if (r_buffer[2] != C_UA || (r_buffer[3] != (r_buffer[1] ^ r_buffer[2])))
+            {
+                printf("\nlog > UA not correct, continuing...\n");
+                alarm_enabled = FALSE;
+                continue;
+            }
+            else 
+            {
+                printf("\nlog > UA correctly received.\n");
+                alarm_enabled = FALSE;
+                break;
+            }
+        }
     }
-
-    printf("\nlog > Number of retransmissions exceeded\n"); // debugging
-
     return 0;
 }
 

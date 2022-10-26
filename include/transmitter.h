@@ -9,7 +9,7 @@ int transmitter_ctrl_receive();
 
 void transmitter_alarm_handler(int signal);
 
-int transmitter_start(int fd_, int nRetransmissions_, int timeout);
+int transmitter_start(int fd, LinkLayer ll);
 
 int buildInformationFrame(unsigned char *frame, unsigned char packet[], int packetSize, unsigned int CA);
 

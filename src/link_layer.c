@@ -74,7 +74,7 @@ int llopen(LinkLayer connectionParameters)
     
     if (connectionParameters.role == LlRx)
     {
-        if (!receiverStart(fd))
+        if (!receiverStart(fd, connectionParameters))
             return -1;
     }
     else if (connectionParameters.role == LlTx)
