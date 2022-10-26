@@ -18,13 +18,13 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
         return -1;
     }
 
-    unsigned char hex_string[20];
+    unsigned char hex_string[255];
 
     struct stat file;
     stat(filename, &file);
 
     // Reads string directly as hexadecimal
-    sprintf(hex_string, "%021X", file.st_size);
+    sprintf(hex_string, "%02lx", file.st_size);
 
     int idx = 3;
     int file_size_bytes = strlen(hex_string) / 2;
@@ -37,6 +37,9 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
         printf("size of file couldn't fit into 1 Byte\n");
     }
 
+
+    printf("packet: %02lx\n", file_size_bytes);
+
     (start == TRUE) ? (packet[0] = C_START) : (packet[0] = C_END);
     /* if (start == TRUE)
         packet[index++] = C_START;
@@ -46,17 +49,24 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
     // APPENDING T_SIZE TO PACKET
     packet[1] = T_SIZE;
     packet[2] = file_size_bytes;
+    for (int i= file_size_bytes-1, j = 0; i>-1; i--, j++) {
+        packet[3+j]=file_size >> (8*i);
+    
+    }
     // NOT SURE IF THE ORDER T_NAME 1ST & T_SIZE 2ND OR VICE-VERSA MATTERS
-    packet[idx++] = T_NAME;
-    packet[idx++] = strlen(filename);
+    packet[idx+file_size_bytes] = T_NAME;
+    packet[idx+file_size_bytes+1] = strlen(filename);
 
     for (int i = 0; i < strlen(filename); i++)
     {
-        packet[idx++] = filename[i];
+        packet[idx+2+file_size_bytes+i] = filename[i];
     }
 
-    size_packet = idx;
+    size_packet = 5+file_size_bytes+strlen(filename);
 
+    for (int i = 0; i < size_packet; i++) {
+        printf("%c\n",packet[i]);
+    }
     return size_packet;
 }
 

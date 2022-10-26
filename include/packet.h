@@ -3,7 +3,7 @@
 
 unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char packet[]);
 
-unsigned int get_datapacket(unsigned char *file_data, unsigned int data_size, unsigned int count);
+unsigned int get_datapacket(unsigned char *bytes, unsigned char *packet, int nSequence, int count_bytes);
 
 unsigned int handle_packet(unsigned char *packet, unsigned int *size);
 

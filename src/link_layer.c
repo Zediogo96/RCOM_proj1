@@ -57,6 +57,8 @@ int llopen(LinkLayer connectionParameters)
     newtio.c_lflag = 0;
     newtio.c_cc[VTIME] = 0; // Inter-character timer unused
     newtio.c_cc[VMIN] = 5;  // Blocking read until 5 chars received
+
+    //Discard data written but not transmitted
     tcflush(fd, TCIOFLUSH);
 
     // Set new port configuration
@@ -68,6 +70,8 @@ int llopen(LinkLayer connectionParameters)
 
     printf("\nNew termios structure set\n");
 
+    printf("\n------------------------------LLOPEN------------------------------\n\n");
+    
     if (connectionParameters.role == LlRx)
     {
         if (!receiverStart(fd))
