@@ -35,7 +35,8 @@ int transmitter_start(int fd, LinkLayer ll)
         }
 
         if (!alarm_enabled)
-        {
+        {   
+            printf("\nWarning > Alarm nº %d\n", alarm_count);
             int bytes = sendSET(fd);
             start_alarm(ll.timeout);
         }
@@ -48,6 +49,7 @@ int transmitter_start(int fd, LinkLayer ll)
             {
                 printf("\nlog > UA not correct, continuing...\n");
                 alarm_enabled = FALSE;
+                
                 continue;
             }
             else 

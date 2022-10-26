@@ -30,7 +30,7 @@ int start_alarm(unsigned int duration)
         alarm_enabled = TRUE;
     }
     
-    if (printf("\nWarning > Alarm nº %d\n", alarm_count);
+    /* printf("\nWarning > Alarm nº %d\n", alarm_count); */
 
     return 0;
 }
