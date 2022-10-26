@@ -127,60 +127,41 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     }
     else if (connection.role == LlRx)
     {
-        int *destination_file;
-        int received_DISC = FALSE; // flag to check if DISC was received
-        unsigned int packet_size = 0;
+        FILE *dest_file;
 
-        unsigned char *buffer[PACKET_MAX_SIZE] = {0}; // buffer for received packets
-        while (!received_DISC)
+        char readBytes = 1;
+
+        while (TRUE)
         {
 
-            if (llread(buffer) == -1)
-            {
-                printf("\nlog > Error occurred during llread\n");
-                llclose(0);
-                return;
-            }
+            unsigned char packet[PACKET_MAX_SIZE] = {0};
+            int packet_size = 0, idx = 0;
 
-            switch (handle_packet(&buffer, &packet_size))
+            if (llread(&packet, packet_size) == -1)
             {
-            case 0:
-                printf("\nlog > Error Handling the packet (source: handle_packet())\n");
-                llclose(0);
-                return;
+                continue;
+            }
+            if (packet[0] == 0x03)
+            {
+                printf("\nlog > Destination file closed\n");
+                fclose(dest_file);
                 break;
-            case 1:
-                printf("Inserting data: %d\n", packet_size);
-                if (destination_file == -1)
+            }
+            else if (packet[0] == 0x02)
+            {
+                printf("\nlog > Destination file was open\n");
+                dest_file = fopen(filename, "wb");
+            }
+            else
+            {
+                // write everything except control packets
+                for (int i = 4; i < packet_size; i++)
                 {
-                    printf("\nlog > No file was initialized, aborting...\n");
-                    return;
+                    fputc(packet[i], dest_file);
                 }
-                else
-                {
-                    for (int i = 4; i < packet_size + 4; i++)
-                    {
-                        write(destination_file, &buffer[i], 1);
-                    }
-                    printf("\n");
-                }
-                break;
-            case 2:
-                printf("log > Start Control Packet received\n");
-                destination_file = fopen(filename, "w+");
-                break;
-            case 3:
-                printf("log > End Control Packet received\n");
-                fclose(destination_file);
-                received_DISC = TRUE;
-                break;
             }
         }
     }
 
-    if (llclose(stats) < 0)
-    {
-        printf("\nlog > Error: llclose failed!\n");
-        return;
-    }
+    llclose(0); // close connection
 }
