@@ -128,8 +128,6 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     {
         FILE *dest_file;
 
-        char readBytes = 1;
-
         while (TRUE)
         {
 
