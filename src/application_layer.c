@@ -51,15 +51,16 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
     if (connection.role == LlTx)
     {
-
         // open file in binary mode
-        FILE *file = fopen(filename, "rb");
+        FILE *file;
+        file = fopen(filename, "rb");
 
-        int number_bytes = 200, current_byte = 0, idx = 0, number_seq = 0;
+        unsigned char packet[PACKET_MAX_SIZE] = {0}, bytes[200];
+
+        int current_byte = 0, idx = 0, number_seq = 0;
         int fileOver = FALSE;
 
-        unsigned char buffer[PACKET_MAX_SIZE] = {0}, bytes[200];
-
+        // CHECK THIS ////////////////////////////////////////
         if (file == NULL)
         {
             printf("\nlog > Error opening the file\n");
@@ -69,12 +70,11 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             printf("\nlog > File opened sucessfully\n");
 
         //////////////////////////////////// SEND FIRST CONTROL PACKET ///////////////////////////////////
-        int packet_size = get_controlpacket(filename, TRUE, &buffer);
+        int packet_size = get_controlpacket(filename, TRUE, &packet);
 
-        if (llwrite(buffer, packet_size) < 0)
+        if (llwrite(packet, packet_size) == -1)
         {
             printf("\nlog > Error sending first control packet\n");
-            llclose(0);
             return;
         }
 
@@ -85,27 +85,27 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             if (!fread(&current_byte, (size_t)1, (size_t)1, file))
             {
                 fileOver = TRUE;
-                packet_size = get_datapacket(bytes, &buffer, number_seq++, index);
+                packet_size = get_datapacket(bytes, &packet, number_seq++, idx);
 
-                if (llwrite(buffer, packet_size) == -1)
+                if (llwrite(packet, packet_size) == -1)
                 {
                     printf("\n log > Error sending writting packet\n");
                     return;
                 }
             }
-            else if (number_bytes == idx)
+            else if (PACKET_MAX_SIZE == idx)
             {
 
-                packet_size = get_datapacket(bytes, &buffer, number_seq++, index);
+                packet_size = get_datapacket(bytes, &packet, number_seq++, idx);
 
-                if (llwrite(buffer, packet_size) == -1)
+                if (llwrite(packet, packet_size) == -1)
                 {
                     printf("\n log > Error sending writting packet\n");
                     return;
                 }
 
                 memset(bytes, 0, sizeof(bytes));
-                memset(buffer, 0, sizeof(buffer));
+                memset(packet, 0, sizeof(packet));
                 idx = 0;
             }
 
@@ -115,12 +115,11 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         fclose(file);
 
         //////////////////////////////////// SEND END CONTROL PACKET ///////////////////////////////////
-        packet_size = get_controlpacket(filename, FALSE, buffer);
+        packet_size = get_controlpacket(filename, FALSE, &packet);
 
-        if (llwrite(buffer, packet_size) == -1)
+        if (llwrite(packet, packet_size) == -1)
         {
             printf("\nlog > Error sending end control packet\n");
-            llclose(0);
             return;
         }
         //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -137,17 +136,17 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             unsigned char packet[PACKET_MAX_SIZE] = {0};
             int packet_size = 0, idx = 0;
 
-            if (llread(&packet, packet_size) == -1)
+            if (llread(&packet, &packet_size) == -1)
             {
                 continue;
             }
-            if (packet[0] == 0x03)
+            if (packet[0] == C_END)
             {
                 printf("\nlog > Destination file closed\n");
                 fclose(dest_file);
                 break;
             }
-            else if (packet[0] == 0x02)
+            else if (packet[0] == C_START)
             {
                 printf("\nlog > Destination file was open\n");
                 dest_file = fopen(filename, "wb");
