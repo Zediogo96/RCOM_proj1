@@ -166,14 +166,14 @@ int llwrite(const unsigned char *buf, int bufSize)
 
             if (parcels[2] != (controlReceiver) || (parcels[3] != (parcels[1] ^ parcels[2])))
             {
-                printf("\nRR not correct: 0x%02x%02x%02x%02x%02x\n", parcels[0], parcels[1], parcels[2], parcels[3], parcels[4]);
+                printf("\n log > RR not correct: 0x%02x%02x%02x%02x%02x\n", parcels[0], parcels[1], parcels[2], parcels[3], parcels[4]);
                 alarm_enabled = FALSE;
                 continue;
             }
 
             else
             {
-                printf("\nRR correctly received: 0x%02x%02x%02x%02x%02x\n", parcels[0], parcels[1], parcels[2], parcels[3], parcels[4]);
+                printf("\nlog > RR correctly received: 0x%02x%02x%02x%02x%02x\n", parcels[0], parcels[1], parcels[2], parcels[3], parcels[4]);
                 alarm_enabled = FALSE;
                 STOP = 1;
             }
@@ -181,7 +181,7 @@ int llwrite(const unsigned char *buf, int bufSize)
 
         if (alarm_count >= ll_info.nRetransmissions)
         {
-            printf("\nllwrite error: Exceeded number of tries when sending frame\n");
+            printf("\n log > llwrite error: Exceeded number of tries when sending frame\n");
             STOP = 1;
             close(fd);
             return -1;

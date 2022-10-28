@@ -36,10 +36,10 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
     // CHECK IF FILESIZE NUMBER DOESN'T FIT INTO ONE BYTE
     if (file_size_bytes > 256)
     {
-        printf("size of file couldn't fit into 1 Byte\n");
+        printf("Size of file couldn't fit into 1 Byte\n");
     }
 
-    printf("packet size in Bytes: %02x\n", file_size_bytes);
+    printf("Packet size in Bytes: %02x\n", file_size_bytes);
 
     // APPENDS CONTROL DEPENDING IF IT'S THE START CONTROL PACKET OR END ON
     (start == TRUE) ? (packet[0] = C_START) : (packet[0] = C_END);

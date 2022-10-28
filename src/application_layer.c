@@ -5,8 +5,6 @@
 #include <fcntl.h>    // for open() and O_RDONLY
 
 int stats = 1; // for now, always show statistics
-// change for macros
-// statistics will be the number of packets sent
 
 int count_frames = 0;
 
@@ -19,8 +17,6 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
     // swap snprintf connection.serialPort to serialPort
     strncpy(connection.serialPort, serialPort, sizeof(serialPort) + 4);
-
-    
 
     // see what is the role of the device running the application
 
