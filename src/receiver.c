@@ -82,8 +82,6 @@ int receiver_stop(int nNRetransmissions, int timeout, int fd) {
 
     receiver_NRetransmissions = nNRetransmissions;
 
-    printf("\n Receiver waiting DISC flag");
-
     while (1) {
         if (receiver_await_disconnect(fd) == 1) {
             

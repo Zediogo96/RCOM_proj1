@@ -374,7 +374,6 @@ int llclose(int showStatistics, int count_frames)
     }
 
     if (ll_info.role == LlRx) {
-        printf("debug1");
         if (receiver_stop(ll_info.nRetransmissions, ll_info.timeout, fd)) {
              printf("\nConnection terminated.\n");
         }
@@ -383,7 +382,6 @@ int llclose(int showStatistics, int count_frames)
         }
     }
     else{
-        printf("debug2");
         if (transmitter_stop(ll_info.nRetransmissions, ll_info.timeout, fd)) {
             printf("\nConnection terminated.\n");
         } 

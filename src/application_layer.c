@@ -128,8 +128,9 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             printf("\nlog > Error sending end control packet\n");
             return;
         }
-        /////////////////////////////////////////////////////////////////////////////////////////////////
-        llclose(TRUE, count_frames);
+        //////////////////////////////////////////////////////////////////////////////////////////////////
+
+        llclose(TRUE);
     }
     else if (connection.role == LlRx)
     {
