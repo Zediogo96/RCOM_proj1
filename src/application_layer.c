@@ -45,7 +45,6 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     if (llopen(connection) < 0)
     {
         printf("\nlog > Error in llopen, aborting...\n");
-        // llclose
         return;
     }
     else
@@ -64,7 +63,6 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         int current_byte = 0, idx = 0, number_seq = 0;
         int fileOver = FALSE;
 
-        // CHECK THIS ////////////////////////////////////////
         if (file == NULL)
         {
             printf("\nlog > Error opening the file\n");
