@@ -6,6 +6,8 @@
 
 #include <stdlib.h>
 
+#include "state_machine.h"
+
 typedef enum
 {
     LlTx,

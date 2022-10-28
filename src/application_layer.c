@@ -140,7 +140,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         while (TRUE)
         {
             unsigned char packet[PACKET_MAX_SIZE] = {0};
-            int packet_size = 0, idx = 0;
+            int packet_size = 0;
 
             if (llread(&packet, &packet_size) == -1)
             {

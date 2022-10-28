@@ -2,6 +2,7 @@
 #define _RECEIVER_H_
 
 #include "alarm.h"
+#include "transmitter.h"
 
 int receiverStart(int fd);
 

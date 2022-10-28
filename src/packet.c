@@ -24,7 +24,7 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
     stat(filename, &file);
 
     // Reads string directly as hexadecimal
-    sprintf(hex_string, "%02lx", file.st_size);
+    sprintf(hex_string, "%02x", file.st_size);
 
     int idx = 3;
     int file_size_bytes = strlen(hex_string) / 2;
@@ -38,7 +38,7 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
     }
 
 
-    printf("packet size in Bytes: %02lx\n", file_size_bytes);
+    printf("packet size in Bytes: %02x\n", file_size_bytes);
 
     (start == TRUE) ? (packet[0] = C_START) : (packet[0] = C_END);
     /* if (start == TRUE)
@@ -65,7 +65,7 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
     size_packet = 5+file_size_bytes+strlen(filename);
 
     for (int i = 0; i < size_packet; i++) {
-        printf("%02lx ",packet[i]);
+        printf("%02x ",packet[i]);
     }
 
     printf("\n");

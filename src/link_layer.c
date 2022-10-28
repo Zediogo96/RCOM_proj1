@@ -114,7 +114,7 @@ int llwrite(const unsigned char *buf, int bufSize)
     info_frame[2] = (senderNumber == 1) ? C_ONE : C_ZERO;
     info_frame[3] = info_frame[1] ^ info_frame[2];
 
-    // BYTE STUFFING
+    // FRAME STUFFING
     for (int i = 0; i < bufSize; i++)
     {
         if (buf[i] == FLAG)
@@ -161,7 +161,7 @@ int llwrite(const unsigned char *buf, int bufSize)
 
         int result = read(fd, parcels, 5);
 
-        if (result != -1 && parcels != 0)
+        if (result != -1)
         {
 
             if (parcels[2] != (controlReceiver) || (parcels[3] != (parcels[1] ^ parcels[2])))
@@ -200,7 +200,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
 {
     printf("\n --------------------- LL_READ ---------------------\n");
 
-    unsigned char info_frame[PACKET_MAX_SIZE] = {0}, superv_frame[5] = {0}, BCC2 = 0x00, aux[PACKET_MAX_SIZE] = {0}, flagCount = 0, STOP = FALSE;
+    unsigned char info_frame[PACKET_MAX_SIZE] = {0}, superv_frame[5] = {0}, BCC2 = 0x00, aux[PACKET_MAX_SIZE] = {0}, STOP = FALSE;
     int control = (!receiverNumber) << 6, index = 0, sizeInfo = 0;
 
     unsigned char buf[1] = {0};
@@ -242,6 +242,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
         return -1;
     }
 
+    // FRAME DESTUFFING
     for (int i = 0; i < sizeInfo; i++)
     {
         if (info_frame[i] == ESCAPE_OCTET && info_frame[i + 1] == FLAG_OCTET_SUB)
@@ -270,7 +271,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
     }
     else
     {
-        size += packet[6] + 3 + 4;        //+3 para contar com os bytes de C, T1 e L1 // +4 para contar com os bytes FLAG, A, C, BCC
+        size += packet[6] + 3 + 4;        //+3 para contar com os bytes de C, T1 (packet[6]) e L1 // +4 para contar com os bytes FLAG, A, C, BCC
         size += packet[size + 1] + 2 + 2; //+2 para contar com T2 e L2 //+2 para contar com BCC2 e FLAG
 
         for (int i = 4; i < size - 2; i++)

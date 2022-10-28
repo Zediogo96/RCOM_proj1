@@ -49,7 +49,7 @@ int receiver_await_disconnect(int fd) {
 
     int bytes = read(fd, r_buffer, 1);
 
-    if (r_buffer != 0 && bytes > -1)
+    if (bytes > -1)
     {   
         int c_answer = llclose_state_machine(r_buffer[0], fd);
         if (c_answer == 1) {
@@ -64,7 +64,7 @@ int receiver_await_UA(int fd) {
 
     int bytes = read(fd, r_buffer, 1);
 
-    if (r_buffer != 0 && bytes > -1)
+    if (bytes > -1)
     {   
         printf("testet");
         int c_answer = llclose_state_machine(r_buffer[0], fd);

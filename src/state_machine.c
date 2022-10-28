@@ -58,7 +58,7 @@ int sm_process_states(unsigned char byte, int fd, int *state, unsigned char *sav
         if (byte == FLAG)
         {
             saved_buffer[4] = byte;
-            state = 5;
+            *state = 5;
         }
         else
         {
@@ -80,6 +80,8 @@ int sm_process_states(unsigned char byte, int fd, int *state, unsigned char *sav
     default:
         break;
     }
+
+    return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,6 +130,7 @@ int data_state_machine(unsigned char byte, int *state, unsigned char *info_frame
         }
         break;
     }
+    return 0;
 }
 
 enum mst
