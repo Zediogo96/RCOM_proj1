@@ -235,7 +235,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
 
     if ((info_frame[1] ^ info_frame[2]) != info_frame[3] || info_frame[2] != control)
     {
-        printf("\ninfo_frame not received correctly. Protocol error. Sending REJ.\n");
+        printf("\nLog > info_frame not received correctly. Protocol error. Sending REJ.\n");
         superv_frame[2] = C_REJ(receiverNumber);
         superv_frame[3] = superv_frame[1] ^ superv_frame[2];
         write(fd, superv_frame, 5);
@@ -296,7 +296,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
         {
             if (info_frame[5] == lastFrameNumber)
             {
-                printf("\ninfo_frame received correctly. Repeated Frame. Sending RR.\n");
+                printf("\nlog > info_frame received correctly. Repeated Frame. Sending RR.\n");
                 superv_frame[2] = C_RR(receiverNumber);
                 superv_frame[3] = superv_frame[1] ^ superv_frame[2];
                 write(fd, superv_frame, 5);
@@ -307,7 +307,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
                 lastFrameNumber = info_frame[5];
             }
         }
-        printf("\ninfo_frame received correctly. Sending RR.\n");
+        printf("\nlog > info_frame received correctly. Sending RR.\n");
         superv_frame[2] = C_RR(receiverNumber);
         superv_frame[3] = superv_frame[1] ^ superv_frame[2];
         write(fd, superv_frame, 5);
@@ -315,7 +315,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
 
     else
     {
-        printf("\ninfo_frame not received correctly. Error in data packet. Sending REJ.\n");
+        printf("\nlog > info_frame not received correctly. Error in data packet. Sending REJ.\n");
         superv_frame[2] = (receiverNumber << 7) | 0x01;
         superv_frame[3] = superv_frame[1] ^ superv_frame[2];
         write(fd, superv_frame, 5);
@@ -354,11 +354,9 @@ int llclose(int showStatistics, int count_frames)
     
     printf("\n------------------------------LLCLOSE------------------------------\n\n");
 
-    printf (ll_info.role == LlTx ? "TRANSMITTER\n" : "RECEIVER\n");  //role is correct 
-
     //handling logic here
 
-    printf("Closing connection");
+    printf("log > Closing connection procedure innitiated.\n");
 
     if (showStatistics) {
         printf("\n------------------------------STATISTICS------------------------------\n\n");
@@ -370,18 +368,18 @@ int llclose(int showStatistics, int count_frames)
 
     if (ll_info.role == LlRx) {
         if (receiver_stop(ll_info.nRetransmissions, ll_info.timeout, fd)) {
-             printf("\nConnection terminated.\n");
+             printf("\nlog > Connection terminated.\n");
         }
         else {
-            printf("\nConnection failed to terminate.\n");
+            printf("\nlog > Connection failed to terminate.\n");
         }
     }
     else{
         if (transmitter_stop(ll_info.nRetransmissions, ll_info.timeout, fd)) {
-            printf("\nConnection terminated.\n");
+            printf("\nlog > Connection terminated.\n");
         } 
         else {
-            printf("\nConnection failed to terminate.\n");
+            printf("\nlog > Connection failed to terminate.\n");
         };
     }
 
