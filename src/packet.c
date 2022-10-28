@@ -48,40 +48,35 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
     packet[1] = T_SIZE;
     packet[2] = file_size_bytes;
     for (int i = file_size_bytes - 1, j = 0; i > -1; i--, j++)
-    {
         packet[3 + j] = file_size >> (8 * i);
-    }
+
     // NOT SURE IF THE ORDER T_NAME 1ST & T_SIZE 2ND OR VICE-VERSA MATTERS
     packet[idx + file_size_bytes] = T_NAME;
     packet[idx + file_size_bytes + 1] = strlen(filename);
 
     // APPENDS FILENAME BYTES INTO THE PACKET
     for (int i = 0; i < strlen(filename); i++)
-    {
         packet[idx + 2 + file_size_bytes + i] = filename[i];
-    }
 
     size_packet = 5 + file_size_bytes + strlen(filename);
 
     for (int i = 0; i < size_packet; i++)
-    {
         printf("%02x ", packet[i]);
-    }
 
     printf("\n");
     return size_packet;
 }
 
 unsigned int get_datapacket(unsigned char *bytes, unsigned char *packet, int nSequence, int count_bytes)
-{   
+{
 
     // CALCULATIONS FOR FIRST PART OF DATA PACKET
-    int l1 = div(count_bytes, 256).rem;
-    int l2 = div(count_bytes, 256).quot;
+    int l1 = count_bytes % 256;
+    int l2 = count_bytes / 256;
 
     // APPENDS CONTROL, L1, L2 TO DATAPACKET
-    packet[0] = 0x01;
-    packet[1] = div(nSequence, 255).rem;
+    packet[0] = C_DATA;
+    packet[1] = nSequence % 256;
     packet[2] = l2;
     packet[3] = l1;
 
@@ -92,5 +87,5 @@ unsigned int get_datapacket(unsigned char *bytes, unsigned char *packet, int nSe
     }
 
     // +4 BECAUSE OF INITIAL CONTROL PACKET
-    return count_bytes + 4; 
+    return count_bytes + 4;
 }

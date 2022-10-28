@@ -8,6 +8,7 @@ int stats = 1; // for now, always show statistics
 
 int count_frames = 0;
 
+
 void applicationLayer(const char *serialPort, const char *role, int baudRate,
                       int nTries, int timeout, const char *filename)
 {
