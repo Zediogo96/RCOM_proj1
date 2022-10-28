@@ -101,7 +101,6 @@ int transmitter_stop(int fd, int nNRetransmissions, int timeout) {
 
     while (1)
     {
-        printf("debug3");
         if (!alarm_enabled) {
             if (t_nRetransmissions == 0) {
                 printf("log > Timeout\n");

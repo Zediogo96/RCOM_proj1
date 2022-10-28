@@ -229,8 +229,6 @@ int llread(unsigned char *packet, int *sizeOfPacket)
         }
     }
 
-    printf("\nSTATE MACHINE PASSED!\n");
-
     superv_frame[0] = 0x7E;
     superv_frame[1] = 0x03;
     superv_frame[4] = 0x7E;
@@ -366,9 +364,6 @@ int llclose(int showStatistics, int count_frames)
         printf("\n------------------------------STATISTICS------------------------------\n\n");
         double cpu_time_used = ((double) (clock() - start)) / CLOCKS_PER_SEC * 1000; //ms
         printf("The application took %f miliseconds to execute.", cpu_time_used);
-
-        // concat two strings in c
-
         printf("\nNumber of frames %s: %d", (ll_info.role == LlRx) ? "received" : "sent", count_frames);
         printf("\n-----------------------------------------------------------------------\n\n");
     }

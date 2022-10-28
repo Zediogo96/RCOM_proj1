@@ -96,7 +96,6 @@ int receiver_stop(int nNRetransmissions, int timeout, int fd) {
             }
         receiver_send_disconnect(fd);
         receiver_NRetransmissions--;
-        printf("debug7");
         start_alarm(timeout);
     }
 
