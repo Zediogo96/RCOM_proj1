@@ -82,9 +82,7 @@ unsigned int get_datapacket(unsigned char *bytes, unsigned char *packet, int nSe
 
     // APPENDS DATA INTO DATAPACKET
     for (int i = 0; i < count_bytes; i++)
-    {
         packet[i + 4] = bytes[i];
-    }
 
     // +4 BECAUSE OF INITIAL CONTROL PACKET
     return count_bytes + 4;
