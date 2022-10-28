@@ -207,11 +207,9 @@ enum state {
 ////////////////////////////////////////////////
 int llread(unsigned char *packet, int *sizeOfPacket)
 {
-    // TO RE-DO FROM SCRATCH, REFACTORING WAS GETTING IMPOSSIBLE WITH ERRORS
-
     printf("\n --------------------- LL_READ ---------------------\n");
 
-    unsigned char info_frame[PACKET_MAX_SIZE] = {0}, superv_frame[5] = {0}, BCC2 = 0x00, aux[400] = {0}, flagCount = 0, STOP = FALSE;
+    unsigned char info_frame[PACKET_MAX_SIZE] = {0}, superv_frame[5] = {0}, BCC2 = 0x00, aux[PACKET_MAX_SIZE] = {0}, flagCount = 0, STOP = FALSE;
     int control = (!receiverNumber) << 6, index = 0, sizeInfo = 0;
 
     unsigned char buf[1] = {0}; // +1: Save space for the final '\0' char
@@ -229,9 +227,9 @@ int llread(unsigned char *packet, int *sizeOfPacket)
         }
     }
 
-    superv_frame[0] = 0x7E;
-    superv_frame[1] = 0x03;
-    superv_frame[4] = 0x7E;
+    superv_frame[0] = FLAG;
+    superv_frame[1] = A;
+    superv_frame[4] = FLAG;
 
     if ((info_frame[1] ^ info_frame[2]) != info_frame[3] || info_frame[2] != control)
     {
