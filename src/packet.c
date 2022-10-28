@@ -35,9 +35,7 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
 
     // CHECK IF FILESIZE NUMBER DOESN'T FIT INTO ONE BYTE
     if (file_size_bytes > 256)
-    {
         printf("Size of file couldn't fit into 1 Byte\n");
-    }
 
     printf("Packet size in Bytes: %02x\n", file_size_bytes);
 
@@ -47,6 +45,8 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
     // APPENDING T_SIZE TO PACKET
     packet[1] = T_SIZE;
     packet[2] = file_size_bytes;
+
+    // TO EXTRACT THE BYTES OF FILE SIZE AND APPEND THEM TO THE FRAME => 2AD8 -> 2A D8
     for (int i = file_size_bytes - 1, j = 0; i > -1; i--, j++)
         packet[3 + j] = file_size >> (8 * i);
 
