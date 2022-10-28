@@ -1,6 +1,5 @@
 #include <unistd.h>
 #include <stdio.h>
-
 #include "macros.h"
 #include "link_layer.h"
 #include "state_machine.h"
@@ -37,20 +36,70 @@ int receiverStart(int fd)
     return 0;
 }
 
-int send_supervision_frame(int fd, int type, int ca)
-{
-    unsigned char buffer[5] = {FLAG, A, C_SET, A ^ C_SET, FLAG};
-    if (type == 0)
-        buffer[2] = C_REJ(ca); // CA is 0 or 1
-    else
-        buffer[2] = C_RR(ca); // CA is 0 or 1
+int receiver_send_disconnect(int fd) {
+    unsigned char MSG[5] = {FLAG, A_RCV, C_DISC, A_RCV^C_DISC, FLAG};
 
-    buffer[3] = (buffer[1] ^ buffer[2]);
-
-    int bytes = write(fd, buffer, 5);
-
-    printf("%s%d frame sent, %d bytes written\n", (type == 0 ? "REJ" : "RR"), ca, bytes);
+    int bytes = write(fd, MSG, 5);
+    printf("\nReceiver DISC flag sent, %d bytes written\n", bytes);
     return bytes;
 }
 
-// received disconnect
+int receiver_await_disconnect(int fd) {
+    unsigned char r_buffer[BUFFER_SIZE] = {0};
+
+    int bytes = read(fd, r_buffer, 1);
+
+    if (r_buffer != 0 && bytes > -1)
+    {   
+        int c_answer = llclose_state_machine(r_buffer[0], fd);
+        if (c_answer == 1) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int receiver_await_UA(int fd) {
+    unsigned char r_buffer[BUFFER_SIZE] = {0};
+
+    int bytes = read(fd, r_buffer, 1);
+
+    if (r_buffer != 0 && bytes > -1)
+    {   
+        int c_answer = llclose_state_machine(r_buffer[0], fd);
+        if (c_answer == 3) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int receiver_NRetransmissions = 0;
+
+int receiver_stop(int nNRetransmissions, int timeout, int fd) {
+    
+    while (1) {
+        if (receiver_await_disconnect(fd) == 1) {
+            break;
+        }
+    }
+
+    receiver_NRetransmissions = nNRetransmissions;
+
+    if (!alarm_enabled) {
+            if (receiver_NRetransmissions == 0) {
+                printf("log > Timeout\n");
+                return 0;
+            }
+        receiver_send_disconnect(fd);
+        receiver_NRetransmissions--;
+        start_alarm(timeout);
+    }
+
+    if (receiver_await_UA(fd) == 1) {
+        printf("\nDISC Received, sending UA\n");
+        transmitter_send_UA(fd);  
+    }
+
+    return 0;
+}

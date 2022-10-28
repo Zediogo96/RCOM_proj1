@@ -4,10 +4,9 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
-
+#include <time.h>
 #include "link_layer.h"
 #include "macros.h"
-
 #include "receiver.h"
 #include "transmitter.h"
 
@@ -19,6 +18,7 @@ int fd = 0;
 
 struct termios oldtio;
 struct termios newtio;
+clock_t start;
 
 LinkLayer ll_info;
 
@@ -30,6 +30,8 @@ int senderNumber = 0, receiverNumber = 1, lastFrameNumber = -1;
 
 int llopen(LinkLayer connectionParameters)
 {
+
+    start = clock();
 
     printf("Opening connection %s", connectionParameters.serialPort);
 
@@ -191,6 +193,15 @@ int llwrite(const unsigned char *buf, int bufSize)
     return 0;
 }
 
+enum state {
+    STATE0,
+    STATE1,
+    STATE2,
+    STATE3, 
+    STATE4,
+    STATE5      
+} typedef STATE;
+
 ////////////////////////////////////////////////
 // LLREAD
 ////////////////////////////////////////////////
@@ -342,8 +353,10 @@ int llread(unsigned char *packet, int *sizeOfPacket)
 ////////////////////////////////////////////////
 int llclose(int showStatistics)
 {
+    
+    printf("\n------------------------------LLCLOSE------------------------------\n\n");
 
-    // use some kind of C library for time measurement
+    //handling logic here
 
     if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
     {

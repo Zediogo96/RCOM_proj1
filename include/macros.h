@@ -21,6 +21,7 @@
 
 #define FLAG 0x7E
 #define A 0x03                     // ADDRESS
+#define A_RCV 0x01                 // ADDRESS RECEIVER
 #define C_SET 0x03                 // SET UP
 #define C_UA 0x07                  // UNUMBERED ACKNOWLEDGEMENT
 #define C_DISC 0x0B                // DISCONNECT

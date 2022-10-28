@@ -2,10 +2,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
-
 #include "macros.h"
 #include "link_layer.h"
 #include "state_machine.h"
+
+//refactor this spaghetti
 
 int sm_process_states(unsigned char byte, int fd, int *state, unsigned char *saved_buffer, int *stop)
 {
@@ -130,80 +131,82 @@ int data_state_machine(unsigned char byte, int *state, unsigned char *info_frame
     }
 }
 
-int response_state = 0;
-unsigned char response_saved_c[BUFFER_SIZE] = {};
-int res_ptr = 0;
-
-void reset_answer_state_machine()
+enum mst
 {
-    response_state = 0;
-    res_ptr = 0;
-}
+    START,
+    F_RECEIVED,
+    A_RECEIVED,
+    C_RECEIVED,
+    BCC1_RECEIVED,
+    RECEIVING_PACKET,
+    WAITING_END_FLAG
+} typedef MACHINE_STATE;
 
-int data_answer_machine(unsigned char byte, int fd, int CA)
-{
+
+//State machine for handling llclose shit - still need to refactor the other one for opening
+
+int end_state = 0;
+unsigned char end_saved_c[BUFFER_SIZE] = {};
+int end_ptr = 0;
+
+int llclose_state_machine(unsigned char byte, int fd) {  //thanks copilot
     while (TRUE)
     {
-        switch (response_state)
+        switch (end_state)
         {
-        case 0:
+        case START:
             if (byte == FLAG)
             {
-                response_state = 1;
-                response_saved_c[res_ptr++] = byte;
+                end_state = F_RECEIVED;
+                end_saved_c[end_ptr++] = byte;
                 return 0;
             }
-            break; // case 0
-        case 1:
+            break;
+        case F_RECEIVED:
+            if (byte == A_RCV || byte == A)
+            {
+                end_state = A_RECEIVED;
+                end_saved_c[end_ptr++] = byte;
+                return 0;
+            }
+            break;
+        case A_RECEIVED:
             if (byte != FLAG)
             {
-                response_state = 2;
-                response_saved_c[res_ptr++] = byte;
+                end_state = C_RECEIVED;
+                end_saved_c[end_ptr++] = byte;
                 return 0;
             }
             break;
-        case 2:
-            response_saved_c[res_ptr++] = byte;
-            if (byte == FLAG)
-                response_state = 3;
-            else
+        case C_RECEIVED:
+            if (byte == (end_saved_c[1] ^ end_saved_c[2]))
+            {
+                end_state = RECEIVING_PACKET;
+                end_saved_c[end_ptr++] = byte;
                 return 0;
+            }
+            else 
+            {
+                printf("log > Protocol error. \n");
+                end_state = F_RECEIVED;
+                end_ptr = 0;
+                return -1;
+            }
             break;
-        // related to BCC, still needs to check it better
-        case 3:
-            if (response_saved_c[3] == ((response_saved_c[1] ^ response_saved_c[2])) && res_ptr > 4)
-            {
-                response_state = 4;
-            }
-            else
-            {
-                reset_answer_state_machine();
+        case RECEIVING_PACKET:
+            if (byte == FLAG) {
+                end_state = START;
+                end_ptr = 0;
+                if (end_saved_c[2] == C_UA)
+                    return 3;
+                else if (end_saved_c[2] == C_DISC && end_saved_c[1] == A_RCV)
+                    return 2;
+                else if (end_saved_c[2] == C_DISC && end_saved_c[1] == A)
+                    return 1;
                 return 0;
             }
-
-        case 4:
-
-            if (response_saved_c[2] == C_RR(0))
-            {
-                reset_answer_state_machine();
-                if (CA == 0)
-                    return 1;
-                else
-                    return -1;
-            }
-            else if (response_saved_c[2] == C_REJ(0) || response_saved_c[2] == C_REJ(1))
-            {
-                reset_answer_state_machine();
-                if (CA == 0)
-                    return 1;
-                else
-                    return -1;
-            }
-
-        default:
-            break; // default
-        }          // switch
+            break;
+        }
     }
-
-    return 0;
 }
+

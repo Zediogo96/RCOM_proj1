@@ -2,19 +2,16 @@
 #define _TRANSMITTER_H_
 #include "alarm.h"
 
-
 int sendSET();
-
-int transmitter_ctrl_receive();
-
-void transmitter_alarm_handler(int signal);
 
 int transmitter_start(int fd, LinkLayer ll);
 
-int buildInformationFrame(unsigned char *frame, unsigned char packet[], int packetSize, unsigned int CA);
+int transmitter_send_disc(int fd);
 
-int sendFrame(unsigned char frame_to_send[], int frameToSendSize);
+int transmitter_send_UA(int fd);
 
-int transmitter_info_send(unsigned char frameToSend[], int frameToSendSize, int new_NRetransmissions, int timeout, int ca);
+int transmitter_await_disconnect(int fd);
+
+int transmitter_stop(int fd, int nNRetransmissions, int timeout);
 
 #endif // _TRANSMITTER_H_
