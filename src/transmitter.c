@@ -9,6 +9,8 @@
 int t_fd;
 int t_nRetransmissions;
 
+//Sends the SET message
+
 int sendSET(int fd)
 {
     unsigned char buffer_SET[5] = {FLAG, A, C_SET, A ^ C_SET, FLAG};
@@ -17,6 +19,8 @@ int sendSET(int fd)
     printf("\nlog > SET flag sent, %d bytes written\n", bytes);
     return bytes;
 }
+
+// Starts the transmitter and all related stuff
 
 int transmitter_start(int fd, LinkLayer ll)
 {
@@ -59,23 +63,29 @@ int transmitter_start(int fd, LinkLayer ll)
     return 0;
 }
 
+//Sends the DISC message from the transmitter
+
 int transmitter_send_disc(int fd)
 {
     unsigned char MSG[5] = {FLAG, A, C_DISC, A ^ C_DISC, FLAG};
 
     int bytes = write(fd, MSG, 5);
-    printf("\n Transmitter DISC flag sent, %d bytes written\n", bytes);
+    printf("\n log > Transmitter DISC flag sent, %d bytes written\n", bytes);
     return bytes;
 }
+
+//Sends the UA message from the transmitter
 
 int transmitter_send_UA(int fd)
 {
     unsigned char MSG[5] = {FLAG, A_RCV, C_UA, A_RCV ^ C_UA, FLAG};
 
     int bytes = write(fd, MSG, 5);
-    printf("\n Transmitter UA flag sent, %d bytes written\n", bytes);
+    printf("\n log > Transmitter UA flag sent, %d bytes written\n", bytes);
     return bytes;
 }
+
+//Waits for the DISC message from the receiver
 
 int transmitter_await_disconnect(int fd)
 {
@@ -92,6 +102,8 @@ int transmitter_await_disconnect(int fd)
     }
     return 0;
 }
+
+//Calls all the other functions needed to close the connection
 
 int transmitter_stop(int fd, int nNRetransmissions, int timeout)
 {
@@ -114,7 +126,7 @@ int transmitter_stop(int fd, int nNRetransmissions, int timeout)
 
         if (transmitter_await_disconnect(fd) == 1)
         {
-            printf("\nDISC Received, sending UA\n");
+            printf("\n log > DISC Received, sending UA\n");
             transmitter_send_UA(fd);
             return 1;
         }
