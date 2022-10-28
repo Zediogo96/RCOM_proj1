@@ -273,7 +273,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
 
     int size = 0; // tamanho da secçao de dados
 
-    if (packet[4] == 0x01)
+    if (packet[4] == C_DATA)
     {
         size = 256 * packet[6] + packet[7] + 4 + 6; //+4 para contar com os bytes de controlo, numero de seq e tamanho
         for (int i = 4; i < size - 2; i++)
@@ -292,7 +292,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
     if (packet[size - 2] == BCC2)
     {
 
-        if (packet[4] == 0x01)
+        if (packet[4] == C_DATA)
         {
             if (info_frame[5] == lastFrameNumber)
             {
@@ -316,7 +316,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
     else
     {
         printf("\nlog > info_frame not received correctly. Error in data packet. Sending REJ.\n");
-        superv_frame[2] = (receiverNumber << 7) | 0x01;
+        superv_frame[2] = C_REJ(receiverNumber);
         superv_frame[3] = superv_frame[1] ^ superv_frame[2];
         write(fd, superv_frame, 5);
 
@@ -327,6 +327,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
 
     index = 0;
 
+    // FRAGMENT THE PACKET TO ONLY READ THE DATA ////////////////
     for (int i = 4; i < (*sizeOfPacket) - 2; i++)
     {
         aux[index++] = packet[i];
@@ -340,6 +341,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
     {
         packet[i] = aux[i];
     }
+    // FRAGMENT THE PACKET TO ONLY READ THE DATA ////////////////
 
     (receiverNumber == 0) ? (receiverNumber = 1) : (receiverNumber = 0);
 
