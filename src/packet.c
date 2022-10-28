@@ -31,7 +31,7 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
     int file_size_bytes = strlen(hex_string) / 2;
     int file_size = file.st_size;
 
-    printf("\n File Size: %d\n", file_size);
+    printf("\nFile Size: %d\n", file_size);
 
     // CHECK IF FILESIZE NUMBER DOESN'T FIT INTO ONE BYTE
     if (file_size_bytes > 256)

@@ -4,7 +4,7 @@ int alarm_enabled = FALSE, alarm_count = 1;
 
 void kill_alarm()
 {
-    printf("log -> Alarm: killed\n"); // debugging
+    printf("\nlog > Alarm: killed\n"); // debugging
     alarm_enabled = FALSE;
     alarm_count = 1;
 }
@@ -29,8 +29,6 @@ int start_alarm(unsigned int duration)
         alarm(duration);
         alarm_enabled = TRUE;
     }
-    
-    /* printf("\nWarning > Alarm nº %d\n", alarm_count); */
 
     return 0;
 }

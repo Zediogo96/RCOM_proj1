@@ -353,8 +353,8 @@ int llclose(int showStatistics, int count_frames)
     {
         printf("\n------------------------------STATISTICS------------------------------\n\n");
         double cpu_time_used = ((double)(clock() - start)) / CLOCKS_PER_SEC * 1000; // ms
-        printf("The application took %f miliseconds to execute.", cpu_time_used);
-        printf("\nNumber of frames %s: %d", (ll_info.role == LlRx) ? "received" : "sent", count_frames);
+        printf(" > The application took %f miliseconds to execute.", cpu_time_used);
+        printf("\n > Number of frames %s: %d\n", (ll_info.role == LlRx) ? "received" : "sent", count_frames);
         printf("\n-----------------------------------------------------------------------\n\n");
     }
 

@@ -70,7 +70,7 @@ int transmitter_send_disc(int fd)
     unsigned char MSG[5] = {FLAG, A, C_DISC, A ^ C_DISC, FLAG};
 
     int bytes = write(fd, MSG, 5);
-    printf("\n log > Transmitter DISC flag sent, %d bytes written\n", bytes);
+    printf("\nlog > Transmitter DISC flag sent, %d bytes written\n", bytes);
     return bytes;
 }
 
@@ -81,7 +81,7 @@ int transmitter_send_UA(int fd)
     unsigned char MSG[5] = {FLAG, A_RCV, C_UA, A_RCV ^ C_UA, FLAG};
 
     int bytes = write(fd, MSG, 5);
-    printf("\n log > Transmitter UA flag sent, %d bytes written\n", bytes);
+    printf("\nlog > Transmitter UA flag sent, %d bytes written\n", bytes);
     return bytes;
 }
 
@@ -126,7 +126,7 @@ int transmitter_stop(int fd, int nNRetransmissions, int timeout)
 
         if (transmitter_await_disconnect(fd) == 1)
         {
-            printf("\n log > DISC Received, sending UA\n");
+            printf("\nlog > DISC Received, sending UA\n");
             transmitter_send_UA(fd);
             return 1;
         }
