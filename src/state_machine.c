@@ -6,7 +6,7 @@
 #include "link_layer.h"
 #include "state_machine.h"
 
-//refactor this spaghetti
+// refactor this spaghetti
 
 int sm_process_states(unsigned char byte, int fd, int *state, unsigned char *saved_buffer, int *stop)
 {
@@ -125,7 +125,6 @@ int data_state_machine(unsigned char byte, int *state, unsigned char *info_frame
             info_frame[data_ptr++] = byte;
             *sizeInfo = data_ptr;
             data_ptr = 0;
-            
         }
         break;
     }
@@ -142,14 +141,14 @@ enum mst
     WAITING_END_FLAG
 } typedef MACHINE_STATE;
 
-
-//State machine for handling llclose shit - still need to refactor the other one for opening
+// State machine for handling llclose shit - still need to refactor the other one for opening
 
 int end_state = 0;
-unsigned char end_saved_c[BUFFER_SIZE] = {};
+unsigned char end_saved_c[BUFFER_SIZE] = {0};
 int end_ptr = 0;
 
-int llclose_state_machine(unsigned char byte, int fd) {  //thanks copilot
+int llclose_state_machine(unsigned char byte, int fd)
+{ // thanks copilot
     while (TRUE)
     {
         switch (end_state)
@@ -185,7 +184,7 @@ int llclose_state_machine(unsigned char byte, int fd) {  //thanks copilot
                 end_saved_c[end_ptr++] = byte;
                 return 0;
             }
-            else 
+            else
             {
                 printf("log > Protocol error. \n");
                 end_state = F_RECEIVED;
@@ -194,13 +193,15 @@ int llclose_state_machine(unsigned char byte, int fd) {  //thanks copilot
             }
             break;
         case RECEIVING_PACKET:
-            if (byte == FLAG) {
+            if (byte == FLAG)
+            {
                 end_state = START;
                 end_ptr = 0;
-                if (end_saved_c[2] == C_UA) {
+                if (end_saved_c[2] == C_UA)
+                {
                     return 3;
                 }
-                    
+
                 else if (end_saved_c[2] == C_DISC && end_saved_c[1] == A_RCV)
                     return 2;
                 else if (end_saved_c[2] == C_DISC && end_saved_c[1] == A)
@@ -211,4 +212,3 @@ int llclose_state_machine(unsigned char byte, int fd) {  //thanks copilot
         }
     }
 }
-

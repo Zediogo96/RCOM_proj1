@@ -7,5 +7,4 @@ unsigned int get_datapacket(unsigned char *bytes, unsigned char *packet, int nSe
 
 unsigned int handle_packet(unsigned char *packet, unsigned int *size);
 
-
 #endif // _PACKET_H_

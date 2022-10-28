@@ -18,13 +18,12 @@ int sendSET(int fd)
     return bytes;
 }
 
-
 int transmitter_start(int fd, LinkLayer ll)
 {
     unsigned char buffer[5] = {};
 
     while (TRUE)
-    {   
+    {
         if (alarm_count > ll.nRetransmissions)
         {
             printf("\nlog > Alarm limit reached, SET message not sent\n");
@@ -32,7 +31,7 @@ int transmitter_start(int fd, LinkLayer ll)
         }
 
         if (!alarm_enabled)
-        {   
+        {
             printf("\nWarning > Alarm nº %d\n", alarm_count);
             int bytes = sendSET(fd);
             start_alarm(ll.timeout);
@@ -41,15 +40,15 @@ int transmitter_start(int fd, LinkLayer ll)
         int bytes = read(fd, buffer, 5);
 
         if (bytes > -1 && buffer != 0 && buffer[0] == FLAG)
-        {   
+        {
             if (buffer[2] != C_UA || (buffer[3] != (buffer[1] ^ buffer[2])))
             {
                 printf("\nlog > UA not correct, continuing...\n");
                 alarm_enabled = FALSE;
-                
+
                 continue;
             }
-            else 
+            else
             {
                 printf("\nlog > UA correctly received.\n");
                 alarm_enabled = FALSE;
@@ -78,12 +77,12 @@ int transmitter_send_UA(int fd)
     return bytes;
 }
 
-
-int transmitter_await_disconnect(int fd) {
+int transmitter_await_disconnect(int fd)
+{
     unsigned char t_buffer[BUFFER_SIZE] = {0};
     int bytes = read(fd, t_buffer, 1);
     if (t_buffer != 0 && bytes > -1)
-    {   
+    {
         int c_ans = llclose_state_machine(t_buffer[0], fd);
         if (c_ans == 2)
         {
@@ -94,14 +93,17 @@ int transmitter_await_disconnect(int fd) {
     return 0;
 }
 
-int transmitter_stop(int fd, int nNRetransmissions, int timeout) {
+int transmitter_stop(int fd, int nNRetransmissions, int timeout)
+{
 
     t_nRetransmissions = nNRetransmissions;
 
     while (1)
     {
-        if (!alarm_enabled) {
-            if (t_nRetransmissions == 0) {
+        if (!alarm_enabled)
+        {
+            if (t_nRetransmissions == 0)
+            {
                 printf("log > Timeout\n");
                 return 0;
             }
@@ -110,7 +112,8 @@ int transmitter_stop(int fd, int nNRetransmissions, int timeout) {
             start_alarm(timeout);
         }
 
-        if (transmitter_await_disconnect(fd) == 1) {
+        if (transmitter_await_disconnect(fd) == 1)
+        {
             printf("\nDISC Received, sending UA\n");
             transmitter_send_UA(fd);
             return 1;

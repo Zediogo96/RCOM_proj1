@@ -18,6 +18,7 @@ int fd = 0;
 
 struct termios oldtio;
 struct termios newtio;
+
 clock_t start;
 
 LinkLayer ll_info;
@@ -30,7 +31,6 @@ int senderNumber = 0, receiverNumber = 1, lastFrameNumber = -1;
 
 int llopen(LinkLayer connectionParameters)
 {
-
     start = clock();
 
     printf("Opening connection %s", connectionParameters.serialPort);
@@ -193,15 +193,6 @@ int llwrite(const unsigned char *buf, int bufSize)
     return 0;
 }
 
-enum state {
-    STATE0,
-    STATE1,
-    STATE2,
-    STATE3, 
-    STATE4,
-    STATE5      
-} typedef STATE;
-
 ////////////////////////////////////////////////
 // LLREAD
 ////////////////////////////////////////////////
@@ -212,7 +203,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
     unsigned char info_frame[PACKET_MAX_SIZE] = {0}, superv_frame[5] = {0}, BCC2 = 0x00, aux[PACKET_MAX_SIZE] = {0}, flagCount = 0, STOP = FALSE;
     int control = (!receiverNumber) << 6, index = 0, sizeInfo = 0;
 
-    unsigned char buf[1] = {0}; // +1: Save space for the final '\0' char
+    unsigned char buf[1] = {0};
 
     int state = 0;
 
@@ -277,7 +268,6 @@ int llread(unsigned char *packet, int *sizeOfPacket)
         for (int i = 4; i < size - 2; i++)
             BCC2 ^= packet[i];
     }
-
     else
     {
         size += packet[6] + 3 + 4;        //+3 para contar com os bytes de C, T1 e L1 // +4 para contar com os bytes FLAG, A, C, BCC
@@ -351,41 +341,46 @@ int llread(unsigned char *packet, int *sizeOfPacket)
 ////////////////////////////////////////////////
 int llclose(int showStatistics, int count_frames)
 {
-    
+
     printf("\n------------------------------LLCLOSE------------------------------\n\n");
 
-    //handling logic here
+    // handling logic here
 
     printf("log > Closing connection procedure innitiated.\n");
 
-    if (showStatistics) {
+    if (showStatistics)
+    {
         printf("\n------------------------------STATISTICS------------------------------\n\n");
-        double cpu_time_used = ((double) (clock() - start)) / CLOCKS_PER_SEC * 1000; //ms
+        double cpu_time_used = ((double)(clock() - start)) / CLOCKS_PER_SEC * 1000; // ms
         printf("The application took %f miliseconds to execute.", cpu_time_used);
         printf("\nNumber of frames %s: %d", (ll_info.role == LlRx) ? "received" : "sent", count_frames);
         printf("\n-----------------------------------------------------------------------\n\n");
     }
 
-    if (ll_info.role == LlRx) {
-        if (receiver_stop(ll_info.nRetransmissions, ll_info.timeout, fd)) {
-             printf("\nlog > Connection terminated.\n");
+    if (ll_info.role == LlRx)
+    {
+        if (receiver_stop(ll_info.nRetransmissions, ll_info.timeout, fd))
+        {
+            printf("\nlog > Connection terminated.\n");
         }
-        else {
+        else
+        {
             printf("\nlog > Connection failed to terminate.\n");
         }
     }
-    else{
-        if (transmitter_stop(ll_info.nRetransmissions, ll_info.timeout, fd)) {
+    else
+    {
+        if (transmitter_stop(ll_info.nRetransmissions, ll_info.timeout, fd))
+        {
             printf("\nlog > Connection terminated.\n");
-        } 
-        else {
+        }
+        else
+        {
             printf("\nlog > Connection failed to terminate.\n");
         };
     }
 
-
-
-    //delete this shit
+    // delete this shit
 
     if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
     {
