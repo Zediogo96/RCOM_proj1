@@ -5,7 +5,6 @@
 #include "link_layer.h"
 #include "state_machine.h"
 #include "transmitter.h"
-#include "aux.h"
 
 int t_fd;
 int t_nRetransmissions;
