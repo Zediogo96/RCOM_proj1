@@ -99,7 +99,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
                 }
                 count_frames++;
             }
-            else if ((PACKET_MAX_SIZE - 4)== (idx))
+            else if ((PACKET_MAX_SIZE - 5)== (idx))
             {
 
                 packet_size = get_datapacket(bytes, &packet, number_seq++, idx);
