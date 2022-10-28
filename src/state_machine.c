@@ -198,7 +198,6 @@ int llclose_state_machine(unsigned char byte, int fd) {  //thanks copilot
                 end_state = START;
                 end_ptr = 0;
                 if (end_saved_c[2] == C_UA) {
-                    printf("answering 3");
                     return 3;
                 }
                     
