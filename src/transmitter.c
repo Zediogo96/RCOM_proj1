@@ -10,7 +10,6 @@
 int t_fd;
 int t_nRetransmissions;
 
-// GOOD
 int sendSET(int fd)
 {
     unsigned char buffer_SET[5] = {FLAG, A, C_SET, A ^ C_SET, FLAG};
@@ -40,9 +39,9 @@ int transmitter_start(int fd, LinkLayer ll)
             start_alarm(ll.timeout);
         }
 
-        int _bytes = read(fd, buffer, 5);
+        int bytes = read(fd, buffer, 5);
 
-        if (_bytes > -1 && buffer != 0 && buffer[0] == FLAG)
+        if (bytes > -1 && buffer != 0 && buffer[0] == FLAG)
         {   
             if (buffer[2] != C_UA || (buffer[3] != (buffer[1] ^ buffer[2])))
             {
@@ -98,9 +97,13 @@ int transmitter_await_disconnect(int fd) {
 
 int transmitter_stop(int fd, int nNRetransmissions, int timeout) {
 
+    t_nRetransmissions = nNRetransmissions;
+
     while (1)
     {
+        printf("debug3");
         if (!alarm_enabled) {
+            printf("debug4");
             if (t_nRetransmissions == 0) {
                 printf("log > Timeout\n");
                 return 0;

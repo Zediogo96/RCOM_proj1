@@ -197,8 +197,11 @@ int llclose_state_machine(unsigned char byte, int fd) {  //thanks copilot
             if (byte == FLAG) {
                 end_state = START;
                 end_ptr = 0;
-                if (end_saved_c[2] == C_UA)
+                if (end_saved_c[2] == C_UA) {
+                    printf("answering 3");
                     return 3;
+                }
+                    
                 else if (end_saved_c[2] == C_DISC && end_saved_c[1] == A_RCV)
                     return 2;
                 else if (end_saved_c[2] == C_DISC && end_saved_c[1] == A)

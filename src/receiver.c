@@ -66,7 +66,9 @@ int receiver_await_UA(int fd) {
 
     if (r_buffer != 0 && bytes > -1)
     {   
+        printf("testet");
         int c_answer = llclose_state_machine(r_buffer[0], fd);
+        printf ("c_answer: %d", c_answer);
         if (c_answer == 3) {
             return 1;
         }
@@ -77,14 +79,14 @@ int receiver_await_UA(int fd) {
 int receiver_NRetransmissions = 0;
 
 int receiver_stop(int nNRetransmissions, int timeout, int fd) {
-    
+
+    receiver_NRetransmissions = nNRetransmissions;
+
     while (1) {
         if (receiver_await_disconnect(fd) == 1) {
             break;
         }
     }
-
-    receiver_NRetransmissions = nNRetransmissions;
 
     if (!alarm_enabled) {
             if (receiver_NRetransmissions == 0) {
@@ -93,6 +95,7 @@ int receiver_stop(int nNRetransmissions, int timeout, int fd) {
             }
         receiver_send_disconnect(fd);
         receiver_NRetransmissions--;
+        printf("debug7");
         start_alarm(timeout);
     }
 
@@ -101,5 +104,5 @@ int receiver_stop(int nNRetransmissions, int timeout, int fd) {
         transmitter_send_UA(fd);  
     }
 
-    return 0;
+    return 1;
 }

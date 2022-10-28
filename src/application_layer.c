@@ -124,7 +124,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         }
         //////////////////////////////////////////////////////////////////////////////////////////////////
 
-        llclose(0);
+        llclose(TRUE);
     }
     else if (connection.role == LlRx)
     {
@@ -161,7 +161,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             }
         }
 
-        llclose(0);
+        llclose(TRUE);
         return;
     }
 }
