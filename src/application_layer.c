@@ -68,8 +68,12 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         else
             printf("\nlog > File opened sucessfully\n");
 
+        
+
         //////////////////////////////////// SEND FIRST CONTROL PACKET ///////////////////////////////////
         int packet_size = get_controlpacket(filename, TRUE, &packet);
+
+        
 
         if (llwrite(packet, packet_size) == -1)
         {
@@ -78,6 +82,8 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         }
 
         //////////////////////////////////////////////////////////////////////////////////////////////////
+
+        
 
         while (!fileOver)
         {
@@ -88,7 +94,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
                 if (llwrite(packet, packet_size) == -1)
                 {
-                    printf("\n log > Error sending writting packet\n");
+                    printf("\nlog > Error sending writting packet\n");
                     return;
                 }
                 count_frames++;
@@ -100,7 +106,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
                 if (llwrite(packet, packet_size) == -1)
                 {
-                    printf("\n log > Error sending writting packet\n");
+                    printf("\nlog > Error sending writting packet\n");
                     return;
                 }
                 count_frames++;
@@ -131,6 +137,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
     {
         FILE *dest_file;
         
+
 
         while (TRUE)
         {

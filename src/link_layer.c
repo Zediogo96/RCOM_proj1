@@ -96,7 +96,10 @@ int llopen(LinkLayer connectionParameters)
 ////////////////////////////////////////////////
 
 int llwrite(const unsigned char *buf, int bufSize)
-{
+{   
+    /////////////////////////////////////////////////////////////////////////////
+    // sleep(1); // TO BE USED TO TEST DATA SENDING TIMEOUT (TRANSMITTER SIDE)
+    /////////////////////////////////////////////////////////////////////////////
 
     printf("\n------------------------------LLWRITE------------------------------\n\n");
 
@@ -166,14 +169,14 @@ int llwrite(const unsigned char *buf, int bufSize)
 
             if (parcels[2] != (controlReceiver) || (parcels[3] != (parcels[1] ^ parcels[2])))
             {
-                printf("\n log > RR not correct: 0x%02x%02x%02x%02x%02x\n", parcels[0], parcels[1], parcels[2], parcels[3], parcels[4]);
+                printf("\n log > RR not correct.\n");
                 alarm_enabled = FALSE;
                 continue;
             }
 
             else
             {
-                printf("\nlog > RR correctly received: 0x%02x%02x%02x%02x%02x\n", parcels[0], parcels[1], parcels[2], parcels[3], parcels[4]);
+                printf("\nlog > RR correctly received.\n");
                 alarm_enabled = FALSE;
                 STOP = 1;
             }
@@ -297,6 +300,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
             }
         }
         printf("\nlog > info_frame received correctly. Sending RR.\n");
+        
         superv_frame[2] = C_RR(receiverNumber);
         superv_frame[3] = superv_frame[1] ^ superv_frame[2];
         write(fd, superv_frame, 5);
@@ -308,6 +312,7 @@ int llread(unsigned char *packet, int *sizeOfPacket)
         superv_frame[2] = C_REJ(receiverNumber);
         superv_frame[3] = superv_frame[1] ^ superv_frame[2];
         write(fd, superv_frame, 5);
+        
 
         return -1;
     }
