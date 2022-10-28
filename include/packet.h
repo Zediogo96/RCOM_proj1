@@ -5,6 +5,4 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
 
 unsigned int get_datapacket(unsigned char *bytes, unsigned char *packet, int nSequence, int count_bytes);
 
-unsigned int handle_packet(unsigned char *packet, unsigned int *size);
-
 #endif // _PACKET_H_
