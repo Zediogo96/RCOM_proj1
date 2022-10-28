@@ -96,74 +96,64 @@ int llopen(LinkLayer connectionParameters)
 int llwrite(const unsigned char *buf, int bufSize)
 {
 
-    // 1º criar o BCC para o dataPacket
-    // 2º fazer byte stuffing
-    // 3º criar a nova infoFrame com o dataPacket (ja stuffed) la dentro
-    // 4º enviar a infoFrame e contar o alarme
-    // 5º factCheck a frame recebida do llread (ver se tem erros ou assim)
-    // 6º llwrite so termina quando recebe mensagem de sucesso ou quando o limite de tentativas é excedido
-
     printf("\n------------------------------LLWRITE------------------------------\n\n");
 
     alarm_count = 0;
 
-    unsigned char BCC = 0x00, infoFrame[600] = {0}, parcels[5] = {0};
-    int index = 4, STOP = 0, controlReceiver = (!senderNumber << 7) | 0x05;
+    unsigned char BCC = 0x00, info_frame[PACKET_MAX_SIZE + 5 + 5] = {0}, parcels[5] = {0};
+    int index = 4, STOP = 0, controlReceiver = C_RR(!senderNumber);
 
     // BCC working correctly
     for (int i = 0; i < bufSize; i++)
-    {
-        BCC = (BCC ^ buf[i]);
-    }
+        BCC ^= buf[i];
 
-    infoFrame[0] = 0x7E;                // Flag
-    infoFrame[1] = 0x03;                // Address
-    infoFrame[2] = (senderNumber << 6); // Control
-    infoFrame[3] = infoFrame[1] ^ infoFrame[2];
+    info_frame[0] = FLAG;
+    info_frame[1] = A;
+    info_frame[2] = (senderNumber == 1) ? C_ONE : C_ZERO;
+    info_frame[3] = info_frame[1] ^ info_frame[2];
 
+    // BYTE STUFFING
     for (int i = 0; i < bufSize; i++)
     {
-        if (buf[i] == 0x7E)
+        if (buf[i] == FLAG)
         {
-            infoFrame[index++] = 0x7D;
-            infoFrame[index++] = 0x5e;
+            info_frame[index++] = ESCAPE_OCTET;
+            info_frame[index++] = FLAG_OCTET_SUB;
             continue;
         }
-        else if (buf[i] == 0x7D)
+        else if (buf[i] == FLAG)
         {
-            infoFrame[index++] = 0x7D;
-            infoFrame[index++] = 0x5D;
+            info_frame[index++] = ESCAPE_OCTET;
+            info_frame[index++] = ESCAPE_OCTET_SUB;
             continue;
         }
 
-        infoFrame[index++] = buf[i];
+        info_frame[index++] = buf[i];
     }
 
-    if (BCC == 0x7E)
+    if (BCC == FLAG)
     {
-        infoFrame[index++] = 0x7D;
-        infoFrame[index++] = 0x5e;
+        info_frame[index++] = ESCAPE_OCTET;
+        info_frame[index++] = FLAG_OCTET_SUB;
     }
 
-    else if (BCC == 0x7D)
+    else if (BCC == ESCAPE_OCTET)
     {
-        infoFrame[index++] = 0x7D;
-        infoFrame[index++] = 0x5D;
+        info_frame[index++] = ESCAPE_OCTET;
+        info_frame[index++] = ESCAPE_OCTET_SUB;
     }
 
     else
-    {
-        infoFrame[index++] = BCC;
-    }
+        info_frame[index++] = BCC;
 
-    infoFrame[index++] = 0x7E;
+    info_frame[index++] = FLAG; // LAST FLAG
 
     while (!STOP)
     {
         if (!alarm_enabled)
         {
-            write(fd, infoFrame, index);
-            printf("\nInfoFrame sent NS=%d\n", senderNumber);
+            write(fd, info_frame, index);
+            printf("\ninfo_frame sent NS=%d\n", senderNumber);
             start_alarm(ll_info.timeout);
         }
 
@@ -171,8 +161,6 @@ int llwrite(const unsigned char *buf, int bufSize)
 
         if (result != -1 && parcels != 0)
         {
-            /*alarm_enabled = FALSE;
-            return 1;*/
 
             if (parcels[2] != (controlReceiver) || (parcels[3] != (parcels[1] ^ parcels[2])))
             {
@@ -208,7 +196,145 @@ int llwrite(const unsigned char *buf, int bufSize)
 ////////////////////////////////////////////////
 int llread(unsigned char *packet, int *sizeOfPacket)
 {
-    // TO RE-DO FROM SCRATCH, REFACTORING WAS GETTING IMPOSSIBLE WITH ERRORS 
+    // TO RE-DO FROM SCRATCH, REFACTORING WAS GETTING IMPOSSIBLE WITH ERRORS
+
+    printf("\n --------------------- LL_READ ---------------------\n");
+
+    unsigned char info_frame[PACKET_MAX_SIZE] = {0}, superv_frame[5] = {0}, BCC2 = 0x00, aux[400] = {0}, flagCount = 0, STOP = FALSE;
+    int control = (!receiverNumber) << 6, index = 0, sizeInfo = 0;
+
+    unsigned char buf[1] = {0}; // +1: Save space for the final '\0' char
+
+    int state = 0;
+
+    while (STOP == FALSE)
+    {
+        int _bytes = read(fd, buf, 1);
+
+        if (_bytes > -1)
+        {
+            // SM machine stopping is handled with the variable stop
+            data_state_machine(buf[0], &state, &info_frame, &STOP, &sizeInfo);
+        }
+    }
+
+    printf("\nSTATE MACHINE PASSED!\n");
+
+    superv_frame[0] = 0x7E;
+    superv_frame[1] = 0x03;
+    superv_frame[4] = 0x7E;
+
+    if ((info_frame[1] ^ info_frame[2]) != info_frame[3] || info_frame[2] != control)
+    {
+        printf("\ninfo_frame not received correctly. Protocol error. Sending REJ.\n");
+        superv_frame[2] = C_REJ(receiverNumber);
+        superv_frame[3] = superv_frame[1] ^ superv_frame[2];
+        write(fd, superv_frame, 5);
+
+        printf("\n-----REJ-----\n");
+        printf("\nSize of REJ: %d\nREJ: 0x", 5);
+
+        for (int i = 0; i < 5; i++)
+        {
+            printf("%02X ", superv_frame[i]);
+        }
+
+        printf("\n\n");
+
+        return -1;
+    }
+
+    for (int i = 0; i < sizeInfo; i++)
+    {
+        if (info_frame[i] == ESCAPE_OCTET && info_frame[i + 1] == FLAG_OCTET_SUB)
+        {
+            packet[index++] = FLAG;
+            i++;
+        }
+
+        else if (info_frame[i] == ESCAPE_OCTET && info_frame[i + 1] == ESCAPE_OCTET_SUB)
+        {
+            packet[index++] = ESCAPE_OCTET;
+            i++;
+        }
+
+        else
+            packet[index++] = info_frame[i];
+    }
+
+    int size = 0; // tamanho da secçao de dados
+
+    if (packet[4] == 0x01)
+    {
+        size = 256 * packet[6] + packet[7] + 4 + 6; //+4 para contar com os bytes de controlo, numero de seq e tamanho
+        for (int i = 4; i < size - 2; i++)
+            BCC2 ^= packet[i];
+    }
+
+    else
+    {
+        size += packet[6] + 3 + 4;        //+3 para contar com os bytes de C, T1 e L1 // +4 para contar com os bytes FLAG, A, C, BCC
+        size += packet[size + 1] + 2 + 2; //+2 para contar com T2 e L2 //+2 para contar com BCC2 e FLAG
+
+        for (int i = 4; i < size - 2; i++)
+            BCC2 ^= packet[i];
+    }
+
+    if (packet[size - 2] == BCC2)
+    {
+
+        if (packet[4] == 0x01)
+        {
+            if (info_frame[5] == lastFrameNumber)
+            {
+                printf("\ninfo_frame received correctly. Repeated Frame. Sending RR.\n");
+                superv_frame[2] = C_RR(receiverNumber);
+                superv_frame[3] = superv_frame[1] ^ superv_frame[2];
+                write(fd, superv_frame, 5);
+                return -1;
+            }
+            else
+            {
+                lastFrameNumber = info_frame[5];
+            }
+        }
+        printf("\ninfo_frame received correctly. Sending RR.\n");
+        superv_frame[2] = C_RR(receiverNumber);
+        superv_frame[3] = superv_frame[1] ^ superv_frame[2];
+        write(fd, superv_frame, 5);
+    }
+
+    else
+    {
+        printf("\ninfo_frame not received correctly. Error in data packet. Sending REJ.\n");
+        superv_frame[2] = (receiverNumber << 7) | 0x01;
+        superv_frame[3] = superv_frame[1] ^ superv_frame[2];
+        write(fd, superv_frame, 5);
+
+        return -1;
+    }
+
+    (*sizeOfPacket) = size;
+
+    index = 0;
+
+    for (int i = 4; i < (*sizeOfPacket) - 2; i++)
+    {
+        aux[index++] = packet[i];
+    }
+
+    (*sizeOfPacket) = size - 6;
+
+    memset(packet, 0, sizeof(packet));
+
+    for (int i = 0; i < (*sizeOfPacket); i++)
+    {
+        packet[i] = aux[i];
+    }
+
+    (receiverNumber == 0) ? (receiverNumber = 1) : (receiverNumber = 0);
+
+    return 1;
 }
 
 ////////////////////////////////////////////////

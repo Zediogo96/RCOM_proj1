@@ -55,7 +55,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
         FILE *file;
         file = fopen(filename, "rb");
 
-        unsigned char packet[PACKET_MAX_SIZE] = {0}, bytes[200];
+        unsigned char packet[PACKET_MAX_SIZE] = {0}, bytes[PACKET_MAX_SIZE - 4];
 
         int current_byte = 0, idx = 0, number_seq = 0;
         int fileOver = FALSE;
@@ -93,7 +93,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
                     return;
                 }
             }
-            else if (PACKET_MAX_SIZE == idx)
+            else if ((PACKET_MAX_SIZE - 4)== (idx))
             {
 
                 packet_size = get_datapacket(bytes, &packet, number_seq++, idx);
@@ -123,12 +123,12 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             return;
         }
         //////////////////////////////////////////////////////////////////////////////////////////////////
+
+        llclose(0);
     }
     else if (connection.role == LlRx)
     {
         FILE *dest_file;
-
-        char readBytes = 1;
 
         while (TRUE)
         {
@@ -160,7 +160,8 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
                 }
             }
         }
-    }
 
-    llclose(0); // close connection
+        llclose(0);
+        return;
+    }
 }
