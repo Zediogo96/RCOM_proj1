@@ -30,7 +30,7 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
     int file_size_bytes = strlen(hex_string) / 2;
     int file_size = file.st_size;
 
-    printf("\n File Size: %d\n");
+    printf("\n File Size: %d\n", file_size);
 
     if (file_size_bytes > 256)
     {
@@ -65,7 +65,7 @@ unsigned int get_controlpacket(unsigned char *filename, int start, unsigned char
     size_packet = 5+file_size_bytes+strlen(filename);
 
     for (int i = 0; i < size_packet; i++) {
-        printf("%c",packet[i]);
+        printf("%02lx ",packet[i]);
     }
 
     printf("\n");

@@ -23,7 +23,6 @@ int sendSET(int fd)
 
 int transmitter_start(int fd, LinkLayer ll)
 {
-
     unsigned char buffer[5] = {};
 
     while (TRUE)
@@ -63,111 +62,59 @@ int transmitter_start(int fd, LinkLayer ll)
     return 0;
 }
 
-// GOOD
-// int transmitter_ctrl_receive()
-// {
-//     unsigned char t_buffer[BUFFER_SIZE] = {0};
-
-//     int bytes = read(t_fd, t_buffer, 1);
-//     if (bytes > -1)
-//     {   
-//         /* printf("Received %02x \n", t_buffer[0]); // debugging */
-//         if (sm_process_states(t_buffer[0], t_fd, LlTx) == 1)
-//         {
-//             printf("log -> Transmitter: received UA\n");
-//             kill_alarm();
-//             return 1;
-//         }
-//     }
-
-//     return 0;
-// }
-
-int buildInformationFrame(unsigned char *frame, unsigned char packet[], int packetSize, unsigned int CA)
+int transmitter_send_disc(int fd)
 {
-    int frameSize = 4; // VERIFY THIS
+    unsigned char MSG[5] = {FLAG, A, C_DISC, A ^ C_DISC, FLAG};
 
-    // INITIAL FLAG
-    frame[0] = FLAG;
-    // SET ADDRESS
-    frame[1] = A;
-    // SET ALTERNATING CONTROL ADDRESS
-    (CA == 0) ? (frame[2] = C_ZERO) : (frame[2] = C_ONE);
-    // SET BCC1
-    frame[3] = frame[1] ^ frame[2];
-
-    // VERIFY IF IT'S SIZE IT'S CORRECT
-    unsigned char newPacket[PACKET_MAX_SIZE * 2 + 2] = {0};
-
-    // FIND BCC2
-    unsigned char bcc2 = 0x00;
-
-    for (int i = 0; i < packetSize; i++)
-    {
-        newPacket[i] = packet[i];
-        bcc2 ^= packet[i];
-    }
-
-    newPacket[packetSize] = bcc2;
-
-    packetSize = stuffing(newPacket, packetSize + 1);
-
-    // copy newPacket to frame
-    for (int i = 0; i < packetSize; i++)
-    {
-        frame[frameSize++] = newPacket[i];
-    }
-
-    // SET LAST POS TO FLAG
-    frame[frameSize++] = FLAG;
-
-    return frameSize;
-}
-
-int sendFrame(unsigned char frame_to_send[], int frameToSendSize)
-{
-    int bytes = write(t_fd, frame_to_send, frameToSendSize);
-    printf("\n");
-    /* for (int i = 0; i < frameToSendSize; i++) printf("%02x ", frame_to_send[i]); */
-    printf("\nInformation frame sent, %d bytes written\n", bytes);
+    int bytes = write(fd, MSG, 5);
+    printf("\n Transmitter DISC flag sent, %d bytes written\n", bytes);
     return bytes;
 }
 
-// TODO 
-int transmitter_info_receive(int ca) {
+int transmitter_send_UA(int fd)
+{
+    unsigned char MSG[5] = {FLAG, A_RCV, C_UA, A_RCV ^ C_UA, FLAG};
 
-    unsigned char buffer[BUFFER_SIZE] = {0};
+    int bytes = write(fd, MSG, 5);
+    printf("\n Transmitter UA flag sent, %d bytes written\n", bytes);
+    return bytes;
+}
 
-    int bytes_ = read(t_fd, buffer, 1);
-    if (bytes_ > -1) {
-        if (data_answer_machine(buffer[0], t_fd, ca)) {
+
+int transmitter_await_disconnect(int fd) {
+    unsigned char t_buffer[BUFFER_SIZE] = {0};
+    int bytes = read(fd, t_buffer, 1);
+    if (t_buffer != 0 && bytes > -1)
+    {   
+        int c_ans = llclose_state_machine(t_buffer[0], fd);
+        if (c_ans == 2)
+        {
             kill_alarm();
             return 1;
         }
     }
-
     return 0;
 }
 
-int transmitter_info_send(unsigned char frameToSend[], int frameToSendSize, int new_NRetransmissions, int timeout, int ca)
-{
-    t_nRetransmissions = new_NRetransmissions;
+int transmitter_stop(int fd, int nNRetransmissions, int timeout) {
 
-    while (TRUE)
+    while (1)
     {
-        if (!alarm_enabled)
-        {
+        if (!alarm_enabled) {
             if (t_nRetransmissions == 0) {
-                printf("\nlog > Maximum number of retransmissions, aborting.\n");
+                printf("log > Timeout\n");
+                return 0;
             }
-            sendFrame(frameToSend, frameToSendSize);
+            transmitter_send_disc(fd);
             t_nRetransmissions--;
             start_alarm(timeout);
         }
 
-        // TODO, STILL DON'T UNDERSTAND IT ENTIRELY
-        if (transmitter_info_receive(ca))
+        if (transmitter_await_disconnect(fd) == 1) {
+            printf("\nDISC Received, sending UA\n");
+            transmitter_send_UA(fd);
             return 1;
+        }
     }
 
     return 0;
