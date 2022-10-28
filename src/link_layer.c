@@ -351,12 +351,50 @@ int llread(unsigned char *packet, int *sizeOfPacket)
 ////////////////////////////////////////////////
 // LLCLOSE
 ////////////////////////////////////////////////
-int llclose(int showStatistics)
+int llclose(int showStatistics, int count_frames)
 {
     
     printf("\n------------------------------LLCLOSE------------------------------\n\n");
 
+    printf (ll_info.role == LlTx ? "TRANSMITTER\n" : "RECEIVER\n");  //role is correct 
+
     //handling logic here
+
+    printf("Closing connection");
+
+    if (showStatistics) {
+        printf("\n------------------------------STATISTICS------------------------------\n\n");
+        double cpu_time_used = ((double) (clock() - start)) / CLOCKS_PER_SEC * 1000; //ms
+        printf("The application took %f miliseconds to execute.", cpu_time_used);
+
+        // concat two strings in c
+
+        printf("\nNumber of frames %s: %d", (ll_info.role == LlRx) ? "received" : "sent", count_frames);
+        printf("\n-----------------------------------------------------------------------\n\n");
+    }
+
+    if (ll_info.role == LlRx) {
+        printf("debug1");
+        if (receiver_stop(ll_info.nRetransmissions, ll_info.timeout, fd)) {
+             printf("\nConnection terminated.\n");
+        }
+        else {
+            printf("\nConnection failed to terminate.\n");
+        }
+    }
+    else{
+        printf("debug2");
+        if (transmitter_stop(ll_info.nRetransmissions, ll_info.timeout, fd)) {
+            printf("\nConnection terminated.\n");
+        } 
+        else {
+            printf("\nConnection failed to terminate.\n");
+        };
+    }
+
+
+
+    //delete this shit
 
     if (tcsetattr(fd, TCSANOW, &oldtio) == -1)
     {

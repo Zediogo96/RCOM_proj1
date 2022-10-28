@@ -8,6 +8,8 @@ int stats = 1; // for now, always show statistics
 // change for macros
 // statistics will be the number of packets sent
 
+int count_frames = 0;
+
 void applicationLayer(const char *serialPort, const char *role, int baudRate,
                       int nTries, int timeout, const char *filename)
 {
@@ -17,6 +19,8 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
 
     // swap snprintf connection.serialPort to serialPort
     strncpy(connection.serialPort, serialPort, sizeof(serialPort) + 4);
+
+    
 
     // see what is the role of the device running the application
 
@@ -92,6 +96,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
                     printf("\n log > Error sending writting packet\n");
                     return;
                 }
+                count_frames++;
             }
             else if ((PACKET_MAX_SIZE - 4)== (idx))
             {
@@ -103,6 +108,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
                     printf("\n log > Error sending writting packet\n");
                     return;
                 }
+                count_frames++;
 
                 memset(bytes, 0, sizeof(bytes));
                 memset(packet, 0, sizeof(packet));
@@ -122,17 +128,16 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             printf("\nlog > Error sending end control packet\n");
             return;
         }
-        //////////////////////////////////////////////////////////////////////////////////////////////////
-
-        llclose(0);
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        llclose(TRUE, count_frames);
     }
     else if (connection.role == LlRx)
     {
         FILE *dest_file;
+        
 
         while (TRUE)
         {
-
             unsigned char packet[PACKET_MAX_SIZE] = {0};
             int packet_size = 0, idx = 0;
 
@@ -153,6 +158,7 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
             }
             else
             {
+                count_frames++;
                 // write everything except control packets
                 for (int i = 4; i < packet_size; i++)
                 {
@@ -160,8 +166,9 @@ void applicationLayer(const char *serialPort, const char *role, int baudRate,
                 }
             }
         }
-
-        llclose(0);
+        llclose(TRUE, count_frames);
         return;
     }
+
+    
 }
