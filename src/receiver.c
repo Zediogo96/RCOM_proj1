@@ -68,7 +68,6 @@ int receiver_await_UA(int fd) {
     {   
         printf("testet");
         int c_answer = llclose_state_machine(r_buffer[0], fd);
-        printf ("c_answer: %d", c_answer);
         if (c_answer == 3) {
             return 1;
         }
@@ -95,7 +94,6 @@ int receiver_stop(int nNRetransmissions, int timeout, int fd) {
             }
         receiver_send_disconnect(fd);
         receiver_NRetransmissions--;
-        printf("debug7");
         start_alarm(timeout);
     }
 
